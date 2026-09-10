@@ -651,4 +651,168 @@ function selectWorld(w) {
   gameState.score = 0;
   gameState.lionPoints = 0;
   gameState.streak = 0;
-  document.getElementById('overlay-start')
+  document.getElementById('overlay-start').style.display = 'none';
+
+  const g = gemConfig[w];
+  document.getElementById('hud-gem-info').innerText = `${g.icon} ${g.name.split(' ')[0]}`;
+  loadQuestion();
+}
+
+function loadQuestion() {
+  if (gameState.qIndex >= gameState.totalQ) {
+    showVictoryScreen();
+    return;
+  }
+  gameState.qIndex++;
+  gameState.answered = false;
+
+  document.getElementById('hud-round-num').innerText = `ข้อ ${gameState.qIndex}/10`;
+  document.getElementById('target-slot').innerText = "?";
+  document.getElementById('target-slot').classList.remove('filled');
+  document.getElementById('feedback-banner').innerText = "";
+
+  gameState.monster.hp = 100;
+
+  const currentList = getWorldQuestions(gameState.world);
+  const q = currentList[gameState.qIndex - 1];
+  gameState.currentQ = q;
+
+  document.getElementById('eq-left').innerText = q.left;
+  document.getElementById('eq-op').innerText = q.op;
+  document.getElementById('eq-right').innerText = q.right;
+
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = "";
+  q.options.forEach(val => {
+    const card = document.createElement('div');
+    card.className = 'tactile-card';
+    card.innerHTML = `<span>${val}</span><div class="dots">${'<div class="dot"></div>'.repeat(Math.min(val, 6))}</div>`;
+    card.onclick = () => onCardClicked(val);
+    grid.appendChild(card);
+  });
+}
+
+function onCardClicked(val) {
+  if (gameState.answered) return;
+  gameState.answered = true;
+
+  const slot = document.getElementById('target-slot');
+  slot.innerText = val;
+  slot.classList.add('filled');
+
+  const fb = document.getElementById('feedback-banner');
+
+  if (val === gameState.currentQ.ans) {
+    Sfx.correct();
+    gameState.streak++;
+    gameState.score += 15;
+    gameState.lionPoints += 35;
+    document.getElementById('hud-lion-points').innerText = `🦁 ${gameState.lionPoints} แต้ม`;
+
+    if (gameState.streak >= 3) {
+      document.getElementById('hud-streak').style.display = 'inline-block';
+    }
+
+    fb.style.color = '#059669';
+    fb.innerText = "✨ ถูกต้อง! พลังคณิตศาสตร์ยิงโจมตี!";
+
+    Sfx.beam();
+    gameState.projectiles.push({
+      x: gameState.leo.x + 30,
+      y: gameState.leo.y - 10,
+      vx: 12,
+      vy: 0
+    });
+
+    setTimeout(openIslandScene, 1100);
+
+  } else {
+    Sfx.wrong();
+    gameState.streak = 0;
+    document.getElementById('hud-streak').style.display = 'none';
+    fb.style.color = '#DC2626';
+    fb.innerText = "💪 ตัวเลขยังไม่สมดุล ลองคิดดูใหม่อีกนิดนะ!";
+    setTimeout(() => {
+      gameState.answered = false;
+      slot.innerText = "?";
+      slot.classList.remove('filled');
+    }, 1300);
+  }
+}
+
+// 5. MATHTANGO ISLAND INTERLEAVED REWARD
+const islandCreatures = ['🐣', '🐥', '🦕', '🦄', '🐲', '🦁', '🦉', '🦊', '🐢', '👑'];
+
+function openIslandScene() {
+  gameState.islandTaps = 0;
+  const modal = document.getElementById('overlay-island');
+  const egg = document.getElementById('island-egg-emoji');
+  const prompt = document.getElementById('island-egg-prompt');
+  const title = document.getElementById('island-gem-title');
+
+  const g = gemConfig[gameState.world];
+  title.innerText = `เกาะ${g.name.split(' ')[0]}กำลังฟื้นฟู! (พลังข้อที่ ${gameState.qIndex}/10)`;
+
+  egg.innerText = '🥚';
+  egg.style.transform = 'scale(1)';
+  prompt.innerText = '👆 แตะไข่ 3 ครั้งเพื่อช่วยฟักมอนสเตอร์!';
+  modal.style.display = 'flex';
+}
+
+function tapIslandEgg() {
+  gameState.islandTaps++;
+  Sfx.eggTap();
+  const egg = document.getElementById('island-egg-emoji');
+  egg.style.transform = `scale(${1 + gameState.islandTaps * 0.12}) rotate(${gameState.islandTaps % 2 === 0 ? 12 : -12}deg)`;
+
+  if (gameState.islandTaps >= 3) {
+    const c = islandCreatures[(gameState.qIndex - 1) % islandCreatures.length];
+    egg.innerText = c;
+    egg.style.transform = 'scale(1.35)';
+    document.getElementById('island-egg-prompt').innerText = `🎉 ฟักตัวสำเร็จ! น้องมอนสเตอร์ร่วมยินดีแล้ว!`;
+  }
+}
+
+function nextQuestionFromIsland() {
+  document.getElementById('overlay-island').style.display = 'none';
+  loadQuestion();
+}
+
+// 6. VICTORY & LINE VOUCHER INTEGRATION
+function showVictoryScreen() {
+  const g = gemConfig[gameState.world];
+  document.getElementById('victory-gem-name').innerText = `กอบกู้ ${g.name} สำเร็จ!`;
+
+  const randStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const voucherCode = `LEO-500-${randStr}`;
+  document.getElementById('voucher-code').innerText = voucherCode;
+
+  document.getElementById('overlay-victory').style.display = 'flex';
+}
+
+function sendLineVoucher() {
+  const code = document.getElementById('voucher-code').innerText;
+  const g = gemConfig[gameState.world];
+  const msg = `สวัสดีค่ะ นำรหัสคูปอง [${code}] จากการพิชิต ${g.name} ในเกม Leo's Math Quest (คะแนนสะสม ${gameState.score} แต้ม) มาขอใช้สิทธิ์ส่วนลดค่าเรียน 500 บาท และนัดหมายตรวจวัดระดับความพร้อม IGCSE ฟรีค่ะ`;
+  window.open(`https://line.me/R/msg/text/?${encodeURIComponent(msg)}`, '_blank');
+}
+
+function restartAll() {
+  document.getElementById('overlay-victory').style.display = 'none';
+  document.getElementById('overlay-start').style.display = 'flex';
+}
+
+// Global Exports
+window.selectWorld = selectWorld;
+window.onCardClicked = onCardClicked;
+window.tapIslandEgg = tapIslandEgg;
+window.nextQuestionFromIsland = nextQuestionFromIsland;
+window.sendLineVoucher = sendLineVoucher;
+window.restartAll = restartAll;
+window.gameState = gameState;
+
+// Start Game Engine
+animate();
+</script>
+</body>
+</html>
