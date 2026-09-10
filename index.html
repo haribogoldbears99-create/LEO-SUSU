@@ -1,88 +1,777 @@
-<!DOCTYPE html><html><body>Leo Math Quest</body></html>
-Leo Math Quest: Final Design Documentation
-This document outlines the comprehensive pedagogical framework, mechanical systems, and content structure for Leo Math Quest, aligned with Cambridge Primary IGCSE standards.
-Game Mechanics and Interactive Design
-DragonBox Tactile Mechanics
-The core interaction layer utilizes "DragonBox" tactile mechanics. Students manipulate mathematical elements directly on the screen. Instead of traditional multiple-choice inputs, players drag, drop, and group icons to solve algebraic and arithmetic expressions. This allows for a deep, intuitive understanding of balance and equivalence before moving to abstract notation.
-Prodigy Canvas Battle Animations
-Mathematical engagement is framed through canvas-based battle animations. When a student encounters a challenge, the screen shifts to a turn-based encounter. Correct answers trigger dynamic animations where Leo uses elemental abilities to clear obstacles. Every mathematical operation is visualized as an action, reinforcing the cause-and-effect relationship of logic and outcome.
-MathTango Eye-Rest Island
-To promote digital wellness and sustained focus, every question is followed by a visit to the MathTango Eye-Rest Island. This serves as a micro-reward system where players can engage in low-intensity interactions, such as placing a new creature or expanding their island habitat. This loop ensures the cognitive load is managed effectively, preventing student burnout.
-LINE Parent Report and Scholarship
-The game integrates directly with the LINE messaging platform. Upon completion of milestones or daily sessions, parents receive a detailed "Progress Snapshot." This report includes the student's mastery levels across Cambridge Stages. As a tangible incentive, reaching significant milestones triggers a 500 THB Scholarship Voucher, which is delivered directly to the parent via the LINE interface.
-Cambridge Primary Curriculum: Question Bank
-Ruby World: Stage 1 (ป.1)
-Focus: Number sense, basic addition/subtraction, and 2D shapes.
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Leo Math Quest — Final Design Documentation</title>
+<meta name="description" content="Leo Math Quest — เกมคณิตศาสตร์ตามหลักสูตร Cambridge Primary IGCSE พร้อมกลไก DragonBox, Prodigy Battle, MathTango Eye-Rest Island และรายงานผู้ปกครองผ่าน LINE" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700;800&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#0a0918;
+  --card:rgba(255,255,255,.055);
+  --card-hi:rgba(255,255,255,.09);
+  --line:rgba(255,255,255,.13);
+  --text:#eceaff;
+  --muted:#a6a3cd;
+  --gold:#ffcf5c;
+  --ruby:#ff4d6d;
+  --sapphire:#4d8bff;
+  --emerald:#2ee6a8;
+  --amethyst:#b06bff;
+  --radius:20px;
+  --maxw:1140px;
+  --shadow:0 18px 50px -20px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:90px}
+body{
+  margin:0;
+  font-family:'Noto Sans Thai',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color:var(--text);
+  line-height:1.7;
+  background:
+    radial-gradient(1100px 620px at 8% -12%, #2b1b60 0%, transparent 60%),
+    radial-gradient(900px 520px at 92% -4%, #0d3a6b 0%, transparent 55%),
+    radial-gradient(800px 700px at 50% 110%, #1a0f3d 0%, transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(100% - 40px, var(--maxw)); margin-inline:auto}
+section{padding:72px 0}
+h1,h2,h3,h4{font-family:'Baloo 2','Noto Sans Thai',sans-serif; line-height:1.25; margin:0}
 
-DragonBox Interaction: Drag the stars into two boxes to show that 5 is made of 2 and 3.
-Logic Quest: What is the next number in the pattern? 2, 4, 6, 8, ...
-Shape Sorter: Identify the triangle among a circle, square, and rectangle.
-Counting Challenge: Count the apples. If Leo eats 2 out of 7, how many remain?
-Comparison: Which number is greater: 14 or 41?
-Time Discovery: Which hand on the clock shows the hour?
-Basic Ops: Solve 10 + 5 using the tactile number line.
-Pattern Mastery: Fill in the blank: Blue, Red, Blue, __, Blue.
-Weight Discovery: Drag the heavier item to the low side of the scale.
-Number Bonds: Find the missing partner for 10: 7 + __ = 10.
-Sapphire World: Stage 2 (ป.2)
-Focus: Place value, measuring length, and simple multiplication.
+/* ============ NAV ============ */
+.nav{
+  position:sticky; top:0; z-index:100;
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  background:rgba(10,9,24,.72);
+  border-bottom:1px solid var(--line);
+}
+.nav-in{display:flex; align-items:center; gap:18px; height:66px}
+.brand{display:flex; align-items:center; gap:10px; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.15rem; letter-spacing:.2px}
+.brand .logo{
+  width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:18px;
+  background:linear-gradient(135deg,var(--amethyst),var(--sapphire));
+  box-shadow:0 6px 18px -6px var(--amethyst);
+}
+.nav-links{display:flex; gap:6px; margin-left:auto; flex-wrap:wrap}
+.nav-links a{
+  padding:8px 14px;border-radius:999px;font-size:.9rem;font-weight:600;color:var(--muted);
+  transition:.22s; border:1px solid transparent;
+}
+.nav-links a:hover{color:#fff;background:var(--card-hi);border-color:var(--line)}
+@media(max-width:720px){ .nav-links{display:none} }
 
-Place Value: Build the number 45 using 10-blocks and 1-cubes.
-Measurement: Use the virtual ruler to measure the dragon's tail in centimeters.
-Multiplication Intro: Create 3 groups of 5 stars. How many stars in total?
-Division Intro: Share 12 gems equally between 2 treasure chests.
-Geometry: How many sides does a pentagon have?
-Data Handling: Look at the tally chart. Which fruit is the most popular?
-Ordinal Numbers: Which position is the gold trophy in: 1st, 2nd, or 3rd?
-Subtraction: Solve 50 - 25 using the "jump back" method.
-Fraction Intro: Drag the line to cut the pizza into two equal halves.
-Estimation: Estimate if a pencil is closer to 10cm or 100cm.
-Emerald World: Stage 3 (ป.3)
-Focus: 3-digit numbers, formal multiplication, and unit conversion.
+/* ============ HERO ============ */
+.hero{padding:86px 0 60px; text-align:center; position:relative; overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:-40% 10% auto;height:520px;
+  background:radial-gradient(closest-side, rgba(176,107,255,.28), transparent 70%);
+  filter:blur(20px);pointer-events:none;
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 16px;border-radius:999px;font-size:.82rem;font-weight:700;letter-spacing:.6px;
+  background:var(--card);border:1px solid var(--line);color:var(--gold);
+  text-transform:uppercase;position:relative;
+}
+.hero h1{
+  font-size:clamp(2.2rem,6vw,4rem); margin:22px 0 10px; position:relative;
+  background:linear-gradient(100deg,#fff 10%,var(--gold) 45%,var(--amethyst) 80%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 8px 30px rgba(176,107,255,.35));
+}
+.hero p.lead{max-width:760px;margin:0 auto;color:var(--muted);font-size:1.05rem;position:relative}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px;position:relative}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:999px;
+  font-weight:700;font-size:.95rem;cursor:pointer;border:1px solid transparent;transition:.24s;
+  font-family:inherit;
+}
+.btn-primary{
+  background:linear-gradient(120deg,var(--amethyst),var(--sapphire));color:#fff;
+  box-shadow:0 14px 34px -14px var(--amethyst);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 20px 40px -14px var(--amethyst)}
+.btn-ghost{background:var(--card);border-color:var(--line);color:var(--text)}
+.btn-ghost:hover{background:var(--card-hi);transform:translateY(-2px)}
+.stats{display:flex;gap:34px;justify-content:center;flex-wrap:wrap;margin-top:44px;position:relative}
+.stat b{display:block;font-family:'Baloo 2',sans-serif;font-size:1.9rem;color:var(--gold);line-height:1.1}
+.stat span{font-size:.8rem;color:var(--muted);letter-spacing:.5px}
 
-Place Value: What is the value of the digit 7 in 742?
-Advanced Addition: Calculate 156 + 234 using the column method.
-Multiplication: Solve 4 x 8. Show your work on the canvas.
-Division: What is 21 divided by 3?
-Time Management: If a movie starts at 2:00 PM and lasts 90 minutes, when does it end?
-Money Math: You have 100 THB. You buy a snack for 45 THB. How much change do you get?
-Fractions: Which is larger: 1/4 or 1/2?
-Mass: Convert 1 kilogram into grams.
-3D Shapes: How many faces does a cube have?
-Perimeter: Calculate the perimeter of a square with sides of 5cm.
-Amethyst World: Stage 4 (ป.4)
-Focus: Decimals, area, complex data, and improper fractions.
+/* ============ SECTION HEADS ============ */
+.sec-head{max-width:760px;margin-bottom:38px}
+.sec-head .kicker{
+  font-size:.8rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);
+  display:block;margin-bottom:10px;
+}
+.sec-head h2{font-size:clamp(1.6rem,3.6vw,2.3rem)}
+.sec-head p{color:var(--muted);margin:10px 0 0}
 
-Decimals: Write "five tenths" as a decimal number.
-Area Quest: Find the area of a rectangle with length 6m and width 4m.
-Negative Numbers: What is 5 degrees colder than 2 degrees Celsius?
-Advanced Fractions: Convert the improper fraction 5/2 into a mixed number.
-Data Analysis: Calculate the mode of this set: 2, 4, 4, 6, 8.
-Rounding: Round 1,456 to the nearest hundred.
-Angle Identification: Is a 120-degree angle acute, right, or obtuse?
-Equivalent Fractions: Find a fraction equivalent to 2/3.
-Symmetry: Drag the line of symmetry across the butterfly image.
-Multi-step Problem: Leo buys 3 potions for 15 gold each and pays with a 50-gold coin. How much change?
-Summary of Rewards
-Reward Type
-Delivery Method
-Condition
-Eye-Rest Interaction
-In-game Island
-After every question
-Battle Animation
-Canvas Render
-Correct answer submission
-Progress Report
-LINE Messaging
-Daily / Session End
-Scholarship Voucher (500 THB)
-LINE Digital Code
-Stage Completion
+/* ============ CARDS / MECHANICS ============ */
+.grid{display:grid;gap:18px}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:26px 24px; transition:.28s; position:relative; overflow:hidden;
+}
+.card:hover{transform:translateY(-4px);background:var(--card-hi);border-color:rgba(255,255,255,.24)}
+.card .ic{
+  width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;
+  margin-bottom:14px; background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
+  border:1px solid var(--line);
+}
+.card h3{font-size:1.08rem;margin-bottom:8px}
+.card p{margin:0;color:var(--muted);font-size:.92rem}
+.card .glow{position:absolute;inset:auto -30% -60% auto;width:180px;height:180px;border-radius:50%;filter:blur(50px);opacity:.35}
 
+/* ============ WORLDS ============ */
+.world{
+  border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  margin-bottom:16px; transition:.28s;
+}
+.world:hover{border-color:rgba(255,255,255,.26)}
+.world-head{
+  width:100%; display:flex; align-items:center; gap:16px; padding:18px 22px;
+  background:none; border:0; color:inherit; cursor:pointer; text-align:left; font-family:inherit;
+}
+.world-head:focus-visible{outline:2px solid var(--gold); outline-offset:-3px}
+.gem{
+  width:48px;height:48px;flex:0 0 48px;border-radius:15px;display:grid;place-items:center;font-size:22px;
+  background:color-mix(in srgb, var(--w) 22%, transparent);
+  border:1px solid color-mix(in srgb, var(--w) 55%, transparent);
+  box-shadow:0 0 26px -8px var(--w);
+}
+.wtitles{display:flex;flex-direction:column;min-width:0}
+.wtitles strong{font-size:1.06rem;font-family:'Baloo 2',sans-serif}
+.wtitles em{font-style:normal;font-size:.82rem;color:var(--muted)}
+.chip{
+  margin-left:auto;font-size:.76rem;font-weight:700;padding:5px 13px;border-radius:999px;
+  background:color-mix(in srgb, var(--w) 18%, transparent);
+  border:1px solid color-mix(in srgb, var(--w) 45%, transparent);
+  color:#fff;white-space:nowrap;
+}
+.caret{color:var(--muted);transition:.3s;font-size:.9rem;flex:0 0 auto}
+.world.open .caret{transform:rotate(180deg)}
+.world-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease}
+.world.open .world-body{grid-template-rows:1fr}
+.world-body > div{overflow:hidden}
+.wb-inner{padding:0 22px 24px}
+.focus{
+  font-size:.86rem;color:var(--muted);border-left:3px solid var(--w);
+  padding:8px 0 8px 14px;margin:0 0 18px;background:color-mix(in srgb, var(--w) 7%, transparent);
+  border-radius:0 10px 10px 0;
+}
+.qlist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.qlist li{
+  display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+  transition:.2s;
+}
+.qlist li:hover{background:rgba(255,255,255,.07);transform:translateX(3px)}
+.qnum{
+  flex:0 0 26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:.75rem;
+  font-weight:800;background:color-mix(in srgb, var(--w) 25%, transparent);
+  border:1px solid color-mix(in srgb, var(--w) 50%, transparent);
+}
+.qtext{min-width:0}
+.tag{
+  display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--w);margin-bottom:3px;
+}
+.qtext p{margin:0;font-size:.9rem}
+@media(max-width:560px){
+  .world-head{padding:15px 16px;gap:12px}
+  .chip{display:none}
+  .wb-inner{padding:0 16px 20px}
+}
 
-    // Start Game Engine
-    animate();
-  </script>
+/* ============ DEMO ============ */
+.demo-shell{
+  border:1px solid var(--line); border-radius:26px; padding:28px;
+  background:linear-gradient(160deg, rgba(176,107,255,.10), rgba(77,139,255,.06) 45%, rgba(255,255,255,.02));
+  box-shadow:var(--shadow);
+}
+.demo-top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin-bottom:22px}
+.demo-top h3{font-size:1.15rem}
+.demo-top .hint{font-size:.82rem;color:var(--muted)}
+.battle{
+  display:flex;align-items:center;justify-content:center;gap:20px;padding:16px;
+  border-radius:18px;background:rgba(0,0,0,.28);border:1px solid var(--line);margin-bottom:22px;
+}
+.fighter{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:40px;line-height:1;transition:.3s}
+.fighter .name{font-family:'Noto Sans Thai';font-size:.72rem;color:var(--muted);letter-spacing:.5px}
+.vs{font-family:'Baloo 2';font-weight:800;color:var(--gold);opacity:.8;font-size:.9rem}
+.battle.win .leo{animation:powerup .9s ease}
+.battle.win .foe{animation:shatter .9s forwards}
+@keyframes powerup{
+  0%{transform:scale(1)}
+  45%{transform:scale(1.3);filter:drop-shadow(0 0 26px var(--gold))}
+  100%{transform:scale(1);filter:none}
+}
+@keyframes shatter{
+  0%{transform:scale(1);opacity:1}
+  30%{transform:scale(1.15) rotate(-8deg)}
+  100%{transform:scale(.15) rotate(200deg);opacity:0;filter:blur(8px)}
+}
+.tray{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;min-height:64px;
+  padding:14px;border-radius:18px;border:1px dashed rgba(255,255,255,.18);
+  background:rgba(255,255,255,.03);margin-bottom:18px;
+}
+.tray::before{
+  content:"ถาดดาว";position:absolute;margin-top:-34px;font-size:.72rem;letter-spacing:1px;
+  color:var(--muted);text-transform:uppercase;
+}
+.star{
+  font-size:30px;line-height:1;cursor:grab;touch-action:none;user-select:none;
+  transition:transform .15s; filter:drop-shadow(0 4px 10px rgba(255,207,92,.45));
+}
+.star:hover{transform:scale(1.15) rotate(-6deg)}
+.star.dragging{opacity:.3}
+.star.ghost{position:fixed;z-index:9999;pointer-events:none;transform:scale(1.25);cursor:grabbing}
+.boxes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dropbox{
+  min-height:132px;border-radius:18px;border:2px dashed rgba(255,255,255,.22);
+  background:rgba(255,255,255,.035);padding:12px;display:flex;flex-direction:column;
+  align-items:center;gap:8px;transition:.22s;position:relative;
+}
+.dropbox.hover{border-color:var(--gold);background:rgba(255,207,92,.12);transform:scale(1.02)}
+.dropbox .box-label{
+  font-family:'Baloo 2';font-weight:800;font-size:1.5rem;color:var(--gold);line-height:1;
+}
+.dropbox .box-sub{font-size:.72rem;color:var(--muted)}
+.slots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;flex:1}
+.demo-status{
+  margin-top:18px;text-align:center;font-size:.92rem;font-weight:600;color:var(--muted);
+  min-height:28px;transition:.3s;
+}
+.demo-status.ok{color:var(--emerald)}
+.demo-status.err{color:var(--ruby)}
+.demo-foot{display:flex;justify-content:center;gap:12px;margin-top:8px;flex-wrap:wrap}
+.eyrest{
+  margin-top:22px;display:flex;gap:14px;align-items:center;padding:14px 18px;border-radius:16px;
+  background:linear-gradient(100deg, rgba(46,230,168,.13), rgba(46,230,168,.03));
+  border:1px solid rgba(46,230,168,.28);font-size:.88rem;
+}
+.eyrest .ic2{font-size:26px}
+.eyrest b{color:var(--emerald)}
+
+/* ============ LINE MOCK ============ */
+.line-mock{
+  border-radius:22px;overflow:hidden;border:1px solid var(--line);
+  background:#0d1220;box-shadow:var(--shadow);max-width:520px;
+}
+.line-head{
+  background:#06c755;color:#fff;padding:13px 18px;font-weight:700;font-size:.88rem;
+  display:flex;align-items:center;gap:9px;
+}
+.line-body{padding:18px;display:grid;gap:12px}
+.bubble{
+  background:#1c2437;border:1px solid rgba(255,255,255,.09);border-radius:16px 16px 16px 4px;
+  padding:14px 16px;font-size:.86rem;color:#dfe4f2;
+}
+.bubble h4{font-size:.9rem;margin-bottom:8px;color:#fff}
+.bubble ul{margin:0;padding-left:18px}
+.bubble li{margin-bottom:4px}
+.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--emerald),var(--sapphire))}
+.bubble.voucher{
+  background:linear-gradient(120deg,#2a2110,#3a2c12);border-color:rgba(255,207,92,.4);
+  border-radius:16px 16px 4px 16px;text-align:center;
+}
+.bubble.voucher .amt{font-family:'Baloo 2';font-size:1.7rem;color:var(--gold);line-height:1.2}
+.bubble.voucher code{
+  display:inline-block;margin-top:6px;padding:5px 12px;border-radius:8px;font-size:.78rem;
+  background:rgba(0,0,0,.4);letter-spacing:1.5px;color:var(--gold);
+}
+
+/* ============ REWARDS TABLE ============ */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{padding:16px 20px;text-align:left;font-size:.9rem;border-bottom:1px solid rgba(255,255,255,.07)}
+th{
+  font-size:.74rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--gold);
+  background:rgba(255,255,255,.04);font-weight:800;
+}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:rgba(255,255,255,.035)}
+td:first-child{font-weight:700}
+.badge{
+  display:inline-block;padding:4px 12px;border-radius:999px;font-size:.76rem;font-weight:700;
+  background:rgba(255,207,92,.14);border:1px solid rgba(255,207,92,.4);color:var(--gold);
+}
+
+/* ============ FOOTER ============ */
+footer{
+  border-top:1px solid var(--line);padding:40px 0 60px;text-align:center;color:var(--muted);font-size:.86rem;
+}
+footer .brand{justify-content:center;margin-bottom:12px;color:var(--text)}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  *{animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="wrap nav-in">
+    <div class="brand"><span class="logo">🐲</span> Leo Math Quest</div>
+    <div class="nav-links">
+      <a href="#mechanics">กลไกเกม</a>
+      <a href="#worlds">คลังข้อสอบ</a>
+      <a href="#demo">ลองเล่น</a>
+      <a href="#rewards">รางวัล &amp; LINE</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">✨ Final Design Documentation</span>
+    <h1>Leo Math Quest</h1>
+    <p class="lead">
+      เกมคณิตศาสตร์ที่ผสานกลไกสัมผัสแบบ <b>DragonBox</b>, แอนิเมชันการต่อสู้แบบ <b>Prodigy</b>,
+      เกาะพักสายตาแบบ <b>MathTango</b> และรายงานผู้ปกครองผ่าน <b>LINE</b> —
+      ออกแบบตามมาตรฐาน Cambridge Primary / IGCSE
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#demo">🎮 ลองกลไกลากดาว</a>
+      <a class="btn btn-ghost" href="#worlds">📚 ดูคลังข้อสอบ 40 ข้อ</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>4</b><span>WORLDS · STAGES 1–4</span></div>
+      <div class="stat"><b>40</b><span>QUESTION BLUEPRINTS</span></div>
+      <div class="stat"><b>500฿</b><span>SCHOLARSHIP VOUCHER</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= MECHANICS ================= -->
+<section id="mechanics">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Game Mechanics</span>
+      <h2>กลไกหลักและประสบการณ์ผู้เล่น</h2>
+      <p>สี่เสาหลักที่ทำให้การเรียนรู้เกิดก่อนสัญลักษณ์นามธรรม และรักษาสมาธิของผู้เรียนไว้ได้ตลอดเซสชัน</p>
+    </div>
+    <div class="grid grid-4">
+      <article class="card reveal">
+        <div class="glow" style="background:var(--amethyst)"></div>
+        <div class="ic">🧩</div>
+        <h3>DragonBox Tactile Mechanics</h3>
+        <p>ผู้เล่นลาก วาง และจัดกลุ่มไอคอนคณิตศาสตร์บนหน้าจอโดยตรง แทนการเลือกคำตอบแบบปรนัย เพื่อให้เข้าใจ "ความสมดุล" และ "ความเท่ากัน" อย่างเป็นธรรมชาติก่อนเข้าสู่สัญลักษณ์นามธรรม</p>
+      </article>
+      <article class="card reveal">
+        <div class="glow" style="background:var(--ruby)"></div>
+        <div class="ic">⚔️</div>
+        <h3>Prodigy Canvas Battle</h3>
+        <p>ทุกโจทย์เปลี่ยนเป็นฉากต่อสู้แบบเทิร์นเบสบน Canvas คำตอบที่ถูกต้องทำให้ Leo ปล่อยพลังธาตุออกไปปราบอุปสรรค — ทุกการดำเนินการทางคณิตถูกทำให้เห็นเป็นเหตุและผล</p>
+      </article>
+      <article class="card reveal">
+        <div class="glow" style="background:var(--emerald)"></div>
+        <div class="ic">🏝️</div>
+        <h3>MathTango Eye-Rest Island</h3>
+        <p>หลังทุกคำถาม ผู้เล่นได้กลับสู่เกาะพักสายตา ทำกิจกรรมเบา ๆ เช่นวางสิ่งมีชีวิตใหม่หรือขยายที่อยู่อาศัย ช่วยบริหาร cognitive load และป้องกันภาวะหมดไฟ</p>
+      </article>
+      <article class="card reveal">
+        <div class="glow" style="background:var(--gold)"></div>
+        <div class="ic">💬</div>
+        <h3>LINE Parent Report</h3>
+        <p>เมื่อจบเซสชันหรือครบมิลสโตน ผู้ปกครองได้รับ "Progress Snapshot" ผ่าน LINE แสดงระดับความชำนาญตาม Cambridge Stage พร้อม Scholarship Voucher 500 บาทเมื่อผ่านด่าน</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WORLDS ================= -->
+<section id="worlds">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Cambridge Primary Curriculum</span>
+      <h2>คลังข้อสอบแยกตามโลกและระดับชั้น</h2>
+      <p>กดที่ชื่อโลกเพื่อเปิด/ปิดรายการโจทย์ — แต่ละข้อผูกกับกลไกอินเทอร์แอ็กทีฟที่แตกต่างกัน</p>
+    </div>
+    <div id="worlds-list"></div>
+  </div>
+</section>
+
+<!-- ================= DEMO ================= -->
+<section id="demo">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Interactive Prototype</span>
+      <h2>ลองกลไก DragonBox + Battle Animation</h2>
+      <p>ลากดาว 5 ดวงลงในสองกล่อง เพื่อพิสูจน์ว่า 5 เกิดจาก 2 และ 3 — เมื่อถูกต้อง Leo จะปล่อยพลังธาตุ</p>
+    </div>
+
+    <div class="demo-shell reveal">
+      <div class="demo-top">
+        <h3>🎯 Number Bonds — Ruby World (Stage 1)</h3>
+        <span class="hint">ลากด้วยเมาส์ หรือนิ้ว (รองรับ touch)</span>
+      </div>
+
+      <div class="battle" id="battle">
+        <div class="fighter leo">🐲<span class="name">LEO</span></div>
+        <div class="vs">VS</div>
+        <div class="fighter foe">🪨<span class="name">ROCK GOLEM</span></div>
+      </div>
+
+      <div class="tray" id="tray"></div>
+
+      <div class="boxes">
+        <div class="dropbox" data-need="2">
+          <span class="box-label">2</span>
+          <span class="box-sub">กล่องที่หนึ่ง</span>
+          <div class="slots"></div>
+        </div>
+        <div class="dropbox" data-need="3">
+          <span class="box-label">3</span>
+          <span class="box-sub">กล่องที่สอง</span>
+          <div class="slots"></div>
+        </div>
+      </div>
+
+      <div class="demo-status" id="status"></div>
+
+      <div class="demo-foot">
+        <button class="btn btn-ghost" id="reset">↺ เริ่มใหม่</button>
+      </div>
+
+      <div class="eyrest">
+        <span class="ic2">🏝️</span>
+        <div><b>Eye-Rest Island:</b> เมื่อตอบถูก ระบบจะพาไปพักสายตาที่เกาะ — วางไข่ creature ตัวใหม่หรือขยายพื้นที่ habitat ก่อนกลับไปสู่โจทย์ข้อถัดไป</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REWARDS ================= -->
+<section id="rewards">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Reward System</span>
+      <h2>สรุปรางวัลและการส่งมอบ</h2>
+      <p>ทุกรางวัลผูกกับพฤติกรรมการเรียนรู้ที่ต้องการส่งเสริม ไม่ใช่แค่การเล่นให้จบ</p>
+    </div>
+
+    <div class="grid grid-2" style="align-items:start">
+      <div class="table-wrap reveal">
+        <table>
+          <thead>
+            <tr><th>Reward Type</th><th>Delivery Method</th><th>Condition</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Eye-Rest Interaction</td><td>In-game Island</td><td>After every question</td></tr>
+            <tr><td>Battle Animation</td><td>Canvas Render</td><td>Correct answer submission</td></tr>
+            <tr><td>Progress Report</td><td>LINE Messaging</td><td>Daily / Session End</td></tr>
+            <tr><td>Scholarship Voucher <span class="badge">500 THB</span></td><td>LINE Digital Code</td><td>Stage Completion</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="line-mock reveal">
+        <div class="line-head">💬 LINE · ผู้ปกครองของ Leo</div>
+        <div class="line-body">
+          <div class="bubble">
+            <h4>📊 Progress Snapshot — วันนี้</h4>
+            <ul>
+              <li>Ruby World (Stage 1) — Mastery <b>85%</b></li>
+              <li>Number Bonds — <b>9/10</b> ถูกต้อง</li>
+              <li>เวลาเรียนรวม 18 นาที · พักสายตา 12 ครั้ง</li>
+            </ul>
+            <div class="bar"><i style="width:85%"></i></div>
+          </div>
+          <div class="bubble voucher">
+            <div class="amt">🎟️ 500 THB</div>
+            <div>Scholarship Voucher — Stage 1 Complete!</div>
+            <code>LMQ-500-4F2A</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="brand"><span class="logo">🐲</span> Leo Math Quest</div>
+    <p>Final Design Documentation — Pedagogical Framework &amp; Content Structure<br>
+    Aligned with Cambridge Primary / IGCSE Standards</p>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   1) WORLD DATA — Cambridge Primary Question Bank
+   ========================================================= */
+const WORLDS = [
+  {
+    name: "Ruby World", stage: "Stage 1 (ป.1)", icon: "🔴", color: "#ff4d6d",
+    focus: "Number sense, basic addition/subtraction, and 2D shapes",
+    items: [
+      ["DragonBox Interaction", "Drag the stars into two boxes to show that 5 is made of 2 and 3."],
+      ["Logic Quest", "What is the next number in the pattern? 2, 4, 6, 8, ..."],
+      ["Shape Sorter", "Identify the triangle among a circle, square, and rectangle."],
+      ["Counting Challenge", "Count the apples. If Leo eats 2 out of 7, how many remain?"],
+      ["Comparison", "Which number is greater: 14 or 41?"],
+      ["Time Discovery", "Which hand on the clock shows the hour?"],
+      ["Basic Ops", "Solve 10 + 5 using the tactile number line."],
+      ["Pattern Mastery", "Fill in the blank: Blue, Red, Blue, __, Blue."],
+      ["Weight Discovery", "Drag the heavier item to the low side of the scale."],
+      ["Number Bonds", "Find the missing partner for 10: 7 + __ = 10."]
+    ]
+  },
+  {
+    name: "Sapphire World", stage: "Stage 2 (ป.2)", icon: "🔵", color: "#4d8bff",
+    focus: "Place value, measuring length, and simple multiplication",
+    items: [
+      ["Place Value", "Build the number 45 using 10-blocks and 1-cubes."],
+      ["Measurement", "Use the virtual ruler to measure the dragon's tail in centimeters."],
+      ["Multiplication Intro", "Create 3 groups of 5 stars. How many stars in total?"],
+      ["Division Intro", "Share 12 gems equally between 2 treasure chests."],
+      ["Geometry", "How many sides does a pentagon have?"],
+      ["Data Handling", "Look at the tally chart. Which fruit is the most popular?"],
+      ["Ordinal Numbers", "Which position is the gold trophy in: 1st, 2nd, or 3rd?"],
+      ["Subtraction", "Solve 50 − 25 using the \"jump back\" method."],
+      ["Fraction Intro", "Drag the line to cut the pizza into two equal halves."],
+      ["Estimation", "Estimate if a pencil is closer to 10 cm or 100 cm."]
+    ]
+  },
+  {
+    name: "Emerald World", stage: "Stage 3 (ป.3)", icon: "🟢", color: "#2ee6a8",
+    focus: "3-digit numbers, formal multiplication, and unit conversion",
+    items: [
+      ["Place Value", "What is the value of the digit 7 in 742?"],
+      ["Advanced Addition", "Calculate 156 + 234 using the column method."],
+      ["Multiplication", "Solve 4 × 8. Show your work on the canvas."],
+      ["Division", "What is 21 divided by 3?"],
+      ["Time Management", "If a movie starts at 2:00 PM and lasts 90 minutes, when does it end?"],
+      ["Money Math", "You have 100 THB. You buy a snack for 45 THB. How much change do you get?"],
+      ["Fractions", "Which is larger: 1/4 or 1/2?"],
+      ["Mass", "Convert 1 kilogram into grams."],
+      ["3D Shapes", "How many faces does a cube have?"],
+      ["Perimeter", "Calculate the perimeter of a square with sides of 5 cm."]
+    ]
+  },
+  {
+    name: "Amethyst World", stage: "Stage 4 (ป.4)", icon: "🟣", color: "#b06bff",
+    focus: "Decimals, area, complex data, and improper fractions",
+    items: [
+      ["Decimals", "Write \"five tenths\" as a decimal number."],
+      ["Area Quest", "Find the area of a rectangle with length 6 m and width 4 m."],
+      ["Negative Numbers", "What is 5 degrees colder than 2 degrees Celsius?"],
+      ["Advanced Fractions", "Convert the improper fraction 5/2 into a mixed number."],
+      ["Data Analysis", "Calculate the mode of this set: 2, 4, 4, 6, 8."],
+      ["Rounding", "Round 1,456 to the nearest hundred."],
+      ["Angle Identification", "Is a 120-degree angle acute, right, or obtuse?"],
+      ["Equivalent Fractions", "Find a fraction equivalent to 2/3."],
+      ["Symmetry", "Drag the line of symmetry across the butterfly image."],
+      ["Multi-step Problem", "Leo buys 3 potions for 15 gold each and pays with a 50-gold coin. How much change?"]
+    ]
+  }
+];
+
+/* ---- Render worlds ---- */
+const worldsList = document.getElementById('worlds-list');
+WORLDS.forEach((w, wi) => {
+  const el = document.createElement('article');
+  el.className = 'world' + (wi === 0 ? ' open' : '');
+  el.style.setProperty('--w', w.color);
+
+  const items = w.items.map(([tag, q], i) => `
+    <li>
+      <span class="qnum">${i + 1}</span>
+      <div class="qtext">
+        <span class="tag">${tag}</span>
+        <p>${q}</p>
+      </div>
+    </li>`).join('');
+
+  el.innerHTML = `
+    <button class="world-head" aria-expanded="${wi === 0}">
+      <span class="gem">${w.icon}</span>
+      <span class="wtitles">
+        <strong>${w.name}</strong>
+        <em>${w.stage}</em>
+      </span>
+      <span class="chip">${w.items.length} ข้อ</span>
+      <span class="caret">▾</span>
+    </button>
+    <div class="world-body">
+      <div>
+        <div class="wb-inner">
+          <p class="focus"><b>Focus:</b> ${w.focus}</p>
+          <ol class="qlist">${items}</ol>
+        </div>
+      </div>
+    </div>`;
+
+  const head = el.querySelector('.world-head');
+  head.addEventListener('click', () => {
+    const open = el.classList.toggle('open');
+    head.setAttribute('aria-expanded', String(open));
+  });
+
+  worldsList.appendChild(el);
+});
+
+/* =========================================================
+   2) DRAG & DROP DEMO — DragonBox tactile mechanic
+   ========================================================= */
+const tray     = document.getElementById('tray');
+const boxes    = Array.from(document.querySelectorAll('.dropbox'));
+const statusEl = document.getElementById('status');
+const battle   = document.getElementById('battle');
+const resetBtn = document.getElementById('reset');
+
+let dragEl = null, ghost = null;
+
+function buildStars() {
+  tray.innerHTML = '';
+  boxes.forEach(b => {
+    b.querySelector('.slots').innerHTML = '';
+    b.classList.remove('hover');
+  });
+  battle.classList.remove('win');
+
+  for (let i = 0; i < 5; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.textContent = '⭐';
+    s.setAttribute('role', 'img');
+    s.setAttribute('aria-label', 'ดาว');
+    s.addEventListener('pointerdown', startDrag);
+    tray.appendChild(s);
+  }
+  setStatus('ลากดาว 5 ดวงลงในสองกล่อง เพื่อแสดงว่า 5 = 2 + 3', '');
+}
+
+function setStatus(msg, cls) {
+  statusEl.textContent = msg;
+  statusEl.className = 'demo-status' + (cls ? ' ' + cls : '');
+}
+
+function startDrag(e) {
+  const el = e.currentTarget;
+  e.preventDefault();
+
+  dragEl = el;
+  const rect = el.getBoundingClientRect();
+
+  ghost = el.cloneNode(true);
+  ghost.classList.add('ghost');
+  ghost.style.width  = rect.width + 'px';
+  ghost.style.height = rect.height + 'px';
+  ghost.style.left   = rect.left + 'px';
+  ghost.style.top    = rect.top + 'px';
+  document.body.appendChild(ghost);
+
+  el.classList.add('dragging');
+
+  document.addEventListener('pointermove', onMove, { passive: false });
+  document.addEventListener('pointerup', onUp);
+  document.addEventListener('pointercancel', onUp);
+}
+
+function onMove(e) {
+  if (!ghost) return;
+  e.preventDefault();
+  ghost.style.left = (e.clientX - ghost.offsetWidth / 2) + 'px';
+  ghost.style.top  = (e.clientY - ghost.offsetHeight / 2) + 'px';
+
+  const under = document.elementFromPoint(e.clientX, e.clientY);
+  const box = under && under.closest('.dropbox');
+  boxes.forEach(b => b.classList.toggle('hover', b === box));
+}
+
+function onUp(e) {
+  document.removeEventListener('pointermove', onMove);
+  document.removeEventListener('pointerup', onUp);
+  document.removeEventListener('pointercancel', onUp);
+
+  if (ghost) { ghost.remove(); ghost = null; }
+  if (!dragEl) return;
+
+  dragEl.classList.remove('dragging');
+  boxes.forEach(b => b.classList.remove('hover'));
+
+  const under  = document.elementFromPoint(e.clientX, e.clientY);
+  const box    = under && under.closest('.dropbox');
+  const trayEl = under && under.closest('#tray');
+  const star   = dragEl;
+  dragEl = null;
+
+  if (box) {
+    box.querySelector('.slots').appendChild(star);
+    star.classList.add('placed');
+  } else if (trayEl) {
+    tray.appendChild(star);
+    star.classList.remove('placed');
+  }
+  check();
+}
+
+function check() {
+  const counts = boxes.map(b => b.querySelectorAll('.star').length);
+  const total  = counts.reduce((a, b) => a + b, 0);
+
+  if (total < 5) {
+    setStatus(`วางแล้ว ${total}/5 ดวง`, '');
+    return;
+  }
+
+  const ok = boxes.every((b, i) => counts[i] === Number(b.dataset.need));
+
+  if (ok) {
+    setStatus('✅ ถูกต้อง! 5 = 2 + 3 — Leo ปล่อยพลังธาตุใส่ Rock Golem!', 'ok');
+    battle.classList.add('win');
+  } else {
+    setStatus('❌ ยังไม่ถูกต้อง — ลองนับจำนวนดาวในแต่ละกล่องอีกครั้ง', 'err');
+    setTimeout(() => {
+      boxes.forEach(b => b.querySelectorAll('.star').forEach(s => {
+        s.classList.remove('placed');
+        tray.appendChild(s);
+      }));
+      setStatus('ลองใหม่อีกครั้ง: ต้องได้ 2 ดวง และ 3 ดวง', '');
+    }, 950);
+  }
+}
+
+resetBtn.addEventListener('click', buildStars);
+buildStars();
+
+/* =========================================================
+   3) SCROLL REVEAL
+   ========================================================= */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      en.target.classList.add('in');
+      io.unobserve(en.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.style.transitionDelay = (i % 4) * 70 + 'ms';
+  io.observe(el);
+});
+</script>
 </body>
 </html>
