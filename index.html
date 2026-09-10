@@ -12,5 +12,702 @@
       --secondary-dark: #0284C7;
       --accent: #A855F7;
       --success: #10B981;
-      --danger
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --bg: #E0F2FE;
+      --card-bg: #FFFFFF;
+      --text: #1E293B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Prompt', 'Kanit', 'Chakra Petch', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background: linear-gradient(135deg, #BAE6FD 0%, #E0F2FE 50%, #F0FDF4 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text);
+      padding: 10px;
+    }
+
+    .game-shell {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card-bg);
+      border-radius: 28px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15), 0 4px 12px rgba(15, 23, 42, 0.08);
+      border: 4px solid #FFFFFF;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 640px;
+    }
+
+    .screen {
+      display: none;
+      padding: 20px;
+      flex-direction: column;
+      flex: 1;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-align: center;
+      text-shadow: 2px 2px 0px #FED7AA;
+      margin-top: 6px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: #64748B;
+      text-align: center;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .mascot-box {
+      text-align: center;
+      margin: 12px 0;
+      position: relative;
+    }
+
+    .mascot {
+      font-size: 4.8rem;
+      display: inline-block;
+      animation: float 2.5s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 18px;
+      padding: 16px 20px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 0 var(--primary-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      transition: all 0.12s ease;
+      text-decoration: none;
+    }
+
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 var(--primary-dark);
+    }
+
+    .btn-green {
+      background: #10B981;
+      box-shadow: 0 6px 0 #047857;
+    }
+    .btn-green:active { box-shadow: 0 2px 0 #047857; }
+
+    .btn-line {
+      background: #06C755;
+      box-shadow: 0 6px 0 #04953F;
+    }
+    .btn-line:active { box-shadow: 0 2px 0 #04953F; }
+
+    .btn-purple {
+      background: #8B5CF6;
+      box-shadow: 0 6px 0 #6D28D9;
+    }
+    .btn-purple:active { box-shadow: 0 2px 0 #6D28D9; }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .hud-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #FEF3C7;
+      color: #B45309;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .streak-badge {
+      background: #FFE4E6;
+      color: #E11D48;
+      padding: 4px 10px;
+      border-radius: 12px;
+      display: none;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .timer-track {
+      width: 100%;
+      height: 10px;
+      background: #E2E8F0;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .timer-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--success);
+      border-radius: 10px;
+      transition: width 1s linear, background-color 0.3s;
+    }
+
+    .story-banner {
+      background: #EFF6FF;
+      border: 2px solid #BFDBFE;
+      border-radius: 16px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1E40AF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .question-card {
+      background: #FFFBEB;
+      border: 3px dashed #FCD34D;
+      border-radius: 20px;
+      padding: 20px 14px;
+      margin-bottom: 14px;
+      text-align: center;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .question-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #78350F;
+      line-height: 1.35;
+    }
+
+    .question-tag {
+      font-size: 0.8rem;
+      color: #B45309;
+      background: #FDE68A;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .choices-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .choice-btn {
+      background: white;
+      border: 3px solid #CBD5E1;
+      border-radius: 18px;
+      padding: 15px 8px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #334155;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #94A3B8;
+      transition: all 0.1s ease;
+    }
+
+    .choice-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #94A3B8;
+    }
+
+    .choice-btn.correct {
+      background: #DCFCE7 !important;
+      border-color: #10B981 !important;
+      color: #065F46 !important;
+      box-shadow: 0 5px 0 #059669 !important;
+    }
+
+    .choice-btn.wrong {
+      background: #FEE2E2 !important;
+      border-color: #EF4444 !important;
+      color: #991B1B !important;
+      box-shadow: 0 5px 0 #DC2626 !important;
+    }
+
+    .feedback-msg {
+      min-height: 32px;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .island-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .island-card {
+      width: 100%;
+      background: linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%);
+      border: 4px solid #34D399;
+      border-radius: 24px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 16px 30px rgba(0,0,0,0.25);
+    }
+
+    .island-view {
+      background: #A7F3D0;
+      border: 3px solid #059669;
+      border-radius: 18px;
+      padding: 20px 10px;
+      margin: 14px 0;
+      position: relative;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .island-object {
+      font-size: 4.5rem;
+      transition: transform 0.15s;
+    }
+
+    .island-object.tapped {
+      transform: scale(1.25) rotate(10deg);
+    }
+
+    .island-prompt {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #065F46;
+      margin-top: 6px;
+    }
+
+    .doubloon-splash {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #B45309;
+      animation: pop 0.4s ease-out;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .voucher-card {
+      background: #FEF3C7;
+      border: 3px dashed #F59E0B;
+      border-radius: 20px;
+      padding: 16px;
+      margin: 14px 0;
+      text-align: center;
+    }
+
+    .voucher-code {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #B45309;
+      letter-spacing: 2px;
+      background: white;
+      padding: 6px 12px;
+      border-radius: 12px;
+      display: inline-block;
+      margin: 6px 0;
+      border: 2px solid #FDE68A;
+    }
+
+    .parent-box {
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 14px;
+      text-align: left;
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .parent-box h4 {
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+
+    .stars-row {
+      font-size: 3.2rem;
+      color: #E2E8F0;
+      margin: 8px 0;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .star-gold {
+      color: #F59E0B;
+      animation: pop 0.4s forwards ease-out;
+    }
+
+    .settings-input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid #CBD5E1;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #334155;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-shell">
+    <!-- หน้าจอ 1: เลือกชั้นเรียน -->
+    <div id="screen-start" class="screen active">
+      <div class="mascot-box">
+        <div class="mascot">🦁</div>
+      </div>
+      <h1 class="title">Leo's Math Quest</h1>
+      <p class="subtitle">ผจญภัยเกาะอัญมณีตรรกะ (IGCSE Junior)</p>
+
+      <div class="story-banner">
+        <span>📜</span>
+        <span>ภารกิจ: จอมโจรหมอกขโมย 5 อัญมณีตรรกะไป! ช่วยกัปตันลีโอคิดเลขเพื่อกอบกู้อัญมณีกันเถอะ!</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+        <button class="btn" style="background: #38BDF8; box-shadow: 0 6px 0 #0284C7;" onclick="startAdventure(1)">
+          <span>🍎 ป.1 : เกาะป่าผลไม้ (บวก-ลบ รูปทรง)</span>
+        </button>
+        <button class="btn" style="background: #34D399; box-shadow: 0 6px 0 #059669;" onclick="startAdventure(2)">
+          <span>💎 ป.2 : เกาะเหมืองผลึก (คูณแม่ 2-10 เงินทอน)</span>
+        </button>
+        <button class="btn" style="background: #A855F7; box-shadow: 0 6px 0 #7E22CE;" onclick="startAdventure(3)">
+          <span>🏰 ป.3 : เกาะปราสาทตรรกะ (หาร เศษส่วน พื้นที่)</span>
+        </button>
+      </div>
+
+      <div style="margin-top: auto; padding-top: 14px; text-align: center;">
+        <p style="font-size: 0.85rem; color: #64748B; font-weight: 700;">
+          💡 เล่นสะสมแต้ม แลกส่วนลดค่าเรียนจริง 500 บ. กับสถาบัน
+        </p>
+      </div>
+    </div>
+
+    <!-- หน้าจอ 2: ขณะเล่นเกม -->
+    <div id="screen-game" class="screen">
+      <div class="hud">
+        <span id="hud-qnum">ด่าน 1/10</span>
+        <span id="hud-streak" class="streak-badge">🔥 x2 คอมโบ!</span>
+        <span id="hud-points" class="hud-badge">🦁 0 แต้ม</span>
+      </div>
+
+      <div class="timer-track">
+        <div id="timer-fill" class="timer-fill"></div>
+      </div>
+
+      <div class="story-banner" id="story-cue">
+        <span>🦁</span>
+        <span id="story-text">ประตูด่านเปิดแล้ว! แก้ปริศนาเลขเพื่อปลดผนึกอัญมณี!</span>
+      </div>
+
+      <div class="question-card">
+        <span class="question-tag" id="question-skill">Cambridge Primary Math</span>
+        <div class="question-title" id="question-text">โจทย์กำลังมา...</div>
+      </div>
+
+      <div class="feedback-msg" id="feedback-text"></div>
+
+      <div class="choices-grid" id="choices-box">
+        <button class="choice-btn" onclick="submitAnswer(0)"></button>
+        <button class="choice-btn" onclick="submitAnswer(1)"></button>
+        <button class="choice-btn" onclick="submitAnswer(2)"></button>
+        <button class="choice-btn" onclick="submitAnswer(3)"></button>
+      </div>
+
+      <div style="text-align: center; margin-top: auto;">
+        <button id="btn-audio" onclick="speakQuestion()" style="background: none; border: 2px solid #CBD5E1; border-radius: 12px; padding: 6px 14px; font-weight: 800; color: #64748B; cursor: pointer;">
+          🔊 กดฟังเสียงโจทย์
+        </button>
+      </div>
+    </div>
+
+    <!-- หน้าจอ 3: มินิเกมภาพบนเกาะคั่นระหว่างข้อ (MathTango Style) -->
+    <div id="island-modal" class="island-overlay">
+      <div class="island-card">
+        <div class="doubloon-splash" id="doubloon-msg">✨ ปิ๊งป่อง! +20 เหรียญทอง!</div>
+        <h3 style="font-size: 1.3rem; font-weight: 800; color: #065F46; margin-top: 4px;">เกาะแห่งตรรกะกำลังฟื้นฟู!</h3>
         
+        <div class="island-view" onclick="tapIslandObject()">
+          <div class="island-object" id="island-asset">🥚</div>
+          <div class="island-prompt" id="island-prompt">👆 แตะไข่มอนสเตอร์ 3 ครั้งเพื่อช่วยฟัก!</div>
+        </div>
+
+        <div style="font-size: 0.95rem; font-weight: 700; color: #047857; margin-bottom: 14px;" id="island-status">
+          กอบกู้อัญมณีตรรกะได้แล้ว: 1 / 5 ดวง
+        </div>
+
+        <button class="btn btn-green" id="btn-island-next" onclick="resumeFromIsland()">
+          <span>ลุยด่านต่อไปกันเลย! ➔</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- หน้าจอ 4: สรุปผลและเชื่อมต่อ LINE -->
+    <div id="screen-result" class="screen">
+      <div style="text-align: center;">
+        <div class="mascot" style="font-size: 3.8rem;">👑</div>
+        <h2 class="title" style="font-size: 1.8rem;">ภารกิจสำเร็จ!</h2>
+        <p style="font-size: 0.95rem; font-weight: 700; color: #64748B;">กอบกู้อัญมณีตรรกะกลับคืนสู่เกาะได้สมบูรณ์!</p>
+      </div>
+
+      <div class="stars-row" id="stars-row">
+        <span id="star1">★</span>
+        <span id="star2">★</span>
+        <span id="star3">★</span>
+      </div>
+
+      <div style="text-align: center; font-size: 1.25rem; font-weight: 800; color: #1E3A8A; margin-bottom: 8px;" id="score-summary">
+        คะแนนรวม: 0 แต้ม
+      </div>
+
+      <div class="voucher-card">
+        <div style="font-size: 0.95rem; font-weight: 800; color: #92400E;">🎟️ คูปองส่วนลดค่าเรียนสถาบัน (10% Cap)</div>
+        <div class="voucher-code" id="voucher-code">LEO-500-XXXX</div>
+        <div style="font-size: 1.15rem; font-weight: 900; color: #B45309;">มูลค่าส่วนลด 500 บาท</div>
+        <p style="font-size: 0.8rem; color: #78350F; margin-top: 4px;">ใช้สมัครคอร์สคณิตศาสตร์ IGCSE Foundation (มีอายุ 45 วัน)</p>
+      </div>
+
+      <button class="btn btn-line" onclick="sendToLine()">
+        <span>📲 ส่งเข้า LINE เพื่อรับส่วนลด & นัดทดลองเรียนฟรี!</span>
+      </button>
+
+      <div class="parent-box" style="margin-top: 14px;">
+        <h4>📝 รายงานถึงคุณพ่อคุณแม่:</h4>
+        <p id="parent-feedback">
+          น้องมีความตั้งใจและสมาธิที่ดีเยี่ยมในการแก้โจทย์ การสลับเล่นด่านภาพบนเกาะช่วยกระตุ้นพัฒนาการสมองส่วน Working Memory ได้อย่างสมดุล สถาบันฯ ขอเชิญท่านนำรหัสคูปองนี้มาใช้เป็นส่วนลด 500 บาท พร้อมรับสิทธิ์ตรวจวัดระดับความพร้อม IGCSE ฟรี 1 ครั้งครับ
+        </p>
+      </div>
+
+      <div style="background: #F1F5F9; border-radius: 12px; padding: 10px; margin-bottom: 12px;">
+        <label style="font-size: 0.8rem; font-weight: 800; color: #475569;">⚙️ LINE ID หรือ Link ของสถาบัน (ปรับเปลี่ยนได้):</label>
+        <input type="text" id="school-line-id" class="settings-input" value="@igcsemath" placeholder="ใส่ LINE ID เช่น @school">
+      </div>
+
+      <button class="btn btn-purple" onclick="restartGame()">
+        <span>🔄 เล่นอีกครั้ง / เปลี่ยนระดับชั้น</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const Sound = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      },
+      tone(freq, type, duration, gainVal = 0.15) {
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          g.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch(e) {}
+      },
+      correct() {
+        this.tone(523.25, 'sine', 0.12);
+        setTimeout(() => this.tone(659.25, 'sine', 0.2), 90);
+      },
+      wrong() {
+        this.tone(240, 'sawtooth', 0.25, 0.2);
+      },
+      streak() {
+        this.tone(587.33, 'triangle', 0.1);
+        setTimeout(() => this.tone(783.99, 'triangle', 0.1), 80);
+        setTimeout(() => this.tone(1046.50, 'triangle', 0.3), 160);
+      },
+      islandTap() {
+        this.tone(880, 'sine', 0.08, 0.2);
+      },
+      victory() {
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+          setTimeout(() => this.tone(f, 'triangle', 0.25), i * 110);
+        });
+      }
+    };
+
+    let currentGrade = 1;
+    let questionIndex = 0;
+    const totalQuestions = 10;
+    let score = 0;
+    let lionPoints = 0;
+    let streakCount = 0;
+    let wrongStreak = 0;
+    let currentDifficulty = 2;
+    let timeLeft = 0;
+    let maxTime = 20;
+    let timerTimer = null;
+    let currentQ = null;
+    let isAnswering = false;
+
+    let islandTaps = 0;
+    let gemsRecovered = 0;
+    const islandAssets = ['🥚', '🐣', '🐥', '🦕', '🏰', '🌴', '💎'];
+
+    const storyPrompts = [
+      "ถ้ำหินปิดอยู่! คิดเลขให้ถูกต้องเพื่อเปิดทาง!",
+      "พบมอนสเตอร์เงาตัวเลข! ปล่อยพลังคิดคำนวณ!",
+      "สะพานเวทมนตร์ขาด! เชื่อมต่อด้วยตัวเลขที่หายไป!",
+      "กล่องสมบัติโบราณต้องการรหัสเปิด!",
+      "ใกล้ถึงยอดปราสาทแล้ว! รวบรวมสมาธิให้มั่นคง!"
+    ];
+
+    const praises = [
+      "เก่งมากเลยคนดี! 🦁✨",
+      "ยอดเยี่ยม ถูกต้องนะคร้าบ! 🎉",
+      "ไหวพริบเฉียบคมมาก! 🚀",
+      "สมองติดสปีดแล้ว ลุยต่อ! ⚡"
+    ];
+
+    const encouragements = [
+      "ไม่เป็นไรนะ ลองคิดใหม่อีกนิด! 💪",
+      "เกือบถูกแล้วคนเก่ง ลีโอเอาใจช่วย! 🦁",
+      "ผิดเป็นครู ค่อยๆ นึกนะคนดี! 💖"
+    ];
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function startAdventure(grade) {
+      currentGrade = grade;
+      questionIndex = 0;
+      score = 0;
+      lionPoints = 0;
+      streakCount = 0;
+      wrongStreak = 0;
+      currentDifficulty = 2;
+      gemsRecovered = 0;
+      maxTime = (grade === 1) ? 30 : 20;
+
+      document.getElementById('hud-points').innerText = `🦁 0 แต้ม`;
+      document.getElementById('hud-streak').style.display = 'none';
+      document.getElementById('feedback-text').innerText = '';
+
+      showScreen('screen-game');
+      loadNextQuestion();
+    }
+
+    function makeQuestion(grade, diff) {
+      const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+      let text = "";
+      let ans = 0;
+      let skill = "Number & Logic";
+
+      if (grade === 1) {
+        if (diff === 1) {
+          let a = rand(2, 9), b = rand(1, 8);
+          text = `${a} + ${b} = ?`;
+          ans = a + b;
+          skill = "การบวกเลขไม่เกิน 20";
+        } else if (diff === 2) {
+          if (Math.random() > 0.4) {
+            let a = rand(11, 20), b = rand(2, 9);
+            text = `${a} - ${b} = ?`;
+            ans = a - b;
+            skill = "การลบจำนวนไม่เกิน 20";
+          } else {
+            let s = rand(2, 8);
+            text = `แบบรูป: ${s}, ${s+2}, ${s+4}, [ ? ]`;
+            ans = s + 6;
+            skill = "แบบรูปนับเพิ่มทีละ 2";
+          }
+        } else {
+          let a = rand(10, 30), b = rand(10, 20);
+          text = `${a} + ${b} = ?`;
+          ans = a + b;
+          skill = "การบวกเลขสองหลัก";
+        }
+      } else if (grade === 2) {
+        if (diff === 1) {
+          let a = rand(2, 5), b = rand(2, 5);
+   
