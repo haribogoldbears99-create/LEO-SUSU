@@ -4,213 +4,88 @@
   <meta charset="UTF-8">
   <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Leo's Math Quest: ผจญภัยเกาะอัญมณีตรรกะ</title>
+  <title>Leo's Math Quest: มหาศึกเกาะอัญมณีตรรกะ</title>
   <style>
     :root {
       --primary: #FF7A00;
       --primary-dark: #D96500;
-      --secondary: #38BDF8;
-      --secondary-dark: #0284C7;
-      --accent: #A855F7;
-      --success: #10B981;
-      --danger: #EF4444;
-      --warning: #F59E0B;
-      --bg: #E0F2FE;
+      --secondary: #0284C7;
+      --bg: #0F172A;
       --card-bg: #FFFFFF;
       --text: #1E293B;
     }
-
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Prompt', 'Kanit', 'Chakra Petch', sans-serif;
+      font-family: 'Prompt', 'Kanit', sans-serif;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
-
     body {
-      background: linear-gradient(135deg, #BAE6FD 0%, #E0F2FE 50%, #F0FDF4 100%);
+      background: #090D16;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: var(--text);
-      padding: 10px;
+      padding: 8px;
     }
-
-    .game-shell {
+    .game-wrapper {
       width: 100%;
-      max-width: 520px;
-      background: var(--card-bg);
-      border-radius: 28px;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15), 0 4px 12px rgba(15, 23, 42, 0.08);
-      border: 4px solid #FFFFFF;
+      max-width: 500px;
+      background: #FFFFFF;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
       overflow: hidden;
-      position: relative;
       display: flex;
       flex-direction: column;
-      min-height: 640px;
-    }
-
-    .screen {
-      display: none;
-      padding: 20px;
-      flex-direction: column;
-      flex: 1;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    .screen.active {
-      display: flex;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .title {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--primary);
-      text-align: center;
-      text-shadow: 2px 2px 0px #FED7AA;
-      margin-top: 6px;
-      line-height: 1.2;
-    }
-
-    .subtitle {
-      font-size: 0.95rem;
-      color: #64748B;
-      text-align: center;
-      margin-bottom: 16px;
-      font-weight: 600;
-    }
-
-    .mascot-box {
-      text-align: center;
-      margin: 12px 0;
       position: relative;
     }
-
-    .mascot {
-      font-size: 4.8rem;
-      display: inline-block;
-      animation: float 2.5s infinite ease-in-out;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 18px;
-      padding: 16px 20px;
-      font-size: 1.15rem;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 6px 0 var(--primary-dark);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+    #gameCanvas {
       width: 100%;
-      transition: all 0.12s ease;
-      text-decoration: none;
+      height: 280px;
+      background: #87CEEB;
+      display: block;
     }
-
-    .btn * {
-      pointer-events: none;
-    }
-
-    .btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 2px 0 var(--primary-dark);
-    }
-
-    .btn-green {
-      background: #10B981;
-      box-shadow: 0 6px 0 #047857;
-    }
-    .btn-green:active { box-shadow: 0 2px 0 #047857; }
-
-    .btn-line {
-      background: #06C755;
-      box-shadow: 0 6px 0 #04953F;
-    }
-    .btn-line:active { box-shadow: 0 2px 0 #04953F; }
-
-    .btn-purple {
-      background: #8B5CF6;
-      box-shadow: 0 6px 0 #6D28D9;
-    }
-    .btn-purple:active { box-shadow: 0 2px 0 #6D28D9; }
-
     .hud {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #F8FAFC;
-      border: 2px solid #E2E8F0;
-      border-radius: 16px;
-      padding: 10px 14px;
-      margin-bottom: 12px;
-      font-weight: 800;
-      font-size: 0.95rem;
+      background: #1E293B;
+      color: white;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 700;
     }
-
     .hud-badge {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: #FEF3C7;
-      color: #B45309;
+      background: #F59E0B;
+      color: #78350F;
       padding: 4px 10px;
       border-radius: 12px;
     }
-
-    .streak-badge {
-      background: #FFE4E6;
-      color: #E11D48;
+    .hud-streak {
+      background: #E11D48;
+      color: white;
       padding: 4px 10px;
       border-radius: 12px;
       display: none;
       animation: pulse 1s infinite;
     }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
+    @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+    .interactive-panel {
+      padding: 16px;
+      background: #F8FAFC;
+      border-top: 3px solid #E2E8F0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 280px;
     }
-
-    .timer-track {
-      width: 100%;
-      height: 10px;
-      background: #E2E8F0;
-      border-radius: 10px;
-      margin-bottom: 14px;
-      overflow: hidden;
-    }
-
-    .timer-fill {
-      height: 100%;
-      width: 100%;
-      background: var(--success);
-      border-radius: 10px;
-      transition: width 1s linear, background-color 0.3s;
-    }
-
-    .story-banner {
+    .story-bubble {
       background: #EFF6FF;
       border: 2px solid #BFDBFE;
-      border-radius: 16px;
+      border-radius: 14px;
       padding: 10px 14px;
-      margin-bottom: 12px;
       font-size: 0.95rem;
       font-weight: 700;
       color: #1E40AF;
@@ -218,783 +93,603 @@
       align-items: center;
       gap: 8px;
     }
-
-    .question-card {
+    /* DragonBox Tactile Equation Board */
+    .equation-board {
       background: #FFFBEB;
-      border: 3px dashed #FCD34D;
-      border-radius: 20px;
-      padding: 20px 14px;
-      margin-bottom: 14px;
-      text-align: center;
-      min-height: 110px;
+      border: 3px dashed #F59E0B;
+      border-radius: 18px;
+      padding: 14px 10px;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
       align-items: center;
-      gap: 6px;
-    }
-
-    .question-title {
-      font-size: 1.65rem;
-      font-weight: 800;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1.6rem;
+      font-weight: 900;
       color: #78350F;
-      line-height: 1.35;
+      min-height: 85px;
     }
-
-    .question-tag {
-      font-size: 0.8rem;
-      color: #B45309;
-      background: #FDE68A;
-      padding: 2px 8px;
-      border-radius: 8px;
-      font-weight: 700;
-    }
-
-    .choices-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .choice-btn {
+    .card-slot {
+      min-width: 60px;
+      height: 60px;
       background: white;
       border: 3px solid #CBD5E1;
-      border-radius: 18px;
-      padding: 15px 8px;
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #334155;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0284C7;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card-slot.filled {
+      background: #E0F2FE;
+      border-color: #0284C7;
+    }
+    .tactile-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .tactile-card {
+      background: white;
+      border: 3px solid #94A3B8;
+      border-radius: 16px;
+      padding: 12px 4px;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #1E293B;
       cursor: pointer;
-      box-shadow: 0 5px 0 #94A3B8;
+      text-align: center;
+      box-shadow: 0 5px 0 #64748B;
       transition: all 0.1s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
-
-    .choice-btn:active {
+    .tactile-card * {
+      pointer-events: none;
+    }
+    .tactile-card:active {
       transform: translateY(3px);
-      box-shadow: 0 2px 0 #94A3B8;
+      box-shadow: 0 2px 0 #64748B;
     }
-
-    .choice-btn.correct {
-      background: #DCFCE7 !important;
-      border-color: #10B981 !important;
-      color: #065F46 !important;
-      box-shadow: 0 5px 0 #059669 !important;
+    .tactile-card .dots {
+      display: flex;
+      gap: 2px;
+      margin-top: 4px;
     }
-
-    .choice-btn.wrong {
-      background: #FEE2E2 !important;
-      border-color: #EF4444 !important;
-      color: #991B1B !important;
-      box-shadow: 0 5px 0 #DC2626 !important;
+    .tactile-card .dot {
+      width: 6px;
+      height: 6px;
+      background: #F59E0B;
+      border-radius: 50%;
     }
-
-    .feedback-msg {
-      min-height: 32px;
+    .feedback-banner {
+      min-height: 28px;
       text-align: center;
       font-size: 1.05rem;
       font-weight: 800;
-      margin-bottom: 8px;
     }
-
-    .island-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(4px);
-      z-index: 50;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      animation: fadeIn 0.25s ease-out;
-    }
-
-    .island-card {
-      width: 100%;
-      background: linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%);
-      border: 4px solid #34D399;
-      border-radius: 24px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 16px 30px rgba(0,0,0,0.25);
-    }
-
-    .island-view {
-      background: #A7F3D0;
-      border: 3px solid #059669;
-      border-radius: 18px;
-      padding: 20px 10px;
-      margin: 14px 0;
-      position: relative;
-      min-height: 150px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .island-object {
-      font-size: 4.5rem;
-      transition: transform 0.15s;
-    }
-
-    .island-object.tapped {
-      transform: scale(1.25) rotate(10deg);
-    }
-
-    .island-prompt {
-      font-size: 1rem;
-      font-weight: 800;
-      color: #065F46;
-      margin-top: 6px;
-    }
-
-    .doubloon-splash {
-      font-size: 1.4rem;
-      font-weight: 900;
-      color: #B45309;
-      animation: pop 0.4s ease-out;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .voucher-card {
-      background: #FEF3C7;
-      border: 3px dashed #F59E0B;
-      border-radius: 20px;
-      padding: 16px;
-      margin: 14px 0;
-      text-align: center;
-    }
-
-    .voucher-code {
-      font-size: 1.6rem;
-      font-weight: 900;
-      color: #B45309;
-      letter-spacing: 2px;
-      background: white;
-      padding: 6px 12px;
-      border-radius: 12px;
-      display: inline-block;
-      margin: 6px 0;
-      border: 2px solid #FDE68A;
-    }
-
-    .parent-box {
-      background: #F8FAFC;
-      border: 2px solid #E2E8F0;
+    .btn-action {
+      background: var(--primary);
+      color: white;
+      border: none;
       border-radius: 16px;
       padding: 14px;
-      text-align: left;
-      font-size: 0.9rem;
-      color: #475569;
-      line-height: 1.55;
-      margin-bottom: 14px;
-    }
-
-    .parent-box h4 {
+      font-size: 1.15rem;
       font-weight: 800;
-      color: #0F172A;
-      margin-bottom: 4px;
-    }
-
-    .stars-row {
-      font-size: 3.2rem;
-      color: #E2E8F0;
-      margin: 8px 0;
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .star-gold {
-      color: #F59E0B;
-      animation: pop 0.4s forwards ease-out;
-    }
-
-    .settings-input {
+      cursor: pointer;
+      box-shadow: 0 5px 0 var(--primary-dark);
+      text-align: center;
+      text-decoration: none;
+      display: block;
       width: 100%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      border: 2px solid #CBD5E1;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #334155;
-      margin-top: 4px;
+    }
+    .btn-action:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 var(--primary-dark);
+    }
+    .overlay-screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(4px);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      z-index: 100;
+      color: white;
+      text-align: center;
+    }
+    .overlay-card {
+      background: white;
+      color: var(--text);
+      border-radius: 24px;
+      padding: 22px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.3);
     }
   </style>
 </head>
 <body>
+<div class="game-wrapper">
+  <!-- HUD -->
+  <div class="hud">
+    <span id="hud-round">เควสต์ 1/10</span>
+    <span id="hud-streak" class="hud-streak">🔥 x2 คอมโบ!</span>
+    <span id="hud-lion-points" class="hud-badge">🦁 0 แต้ม</span>
+  </div>
 
-  <div class="game-shell">
-    <!-- หน้าจอ 1: เลือกชั้นเรียน -->
-    <div id="screen-start" class="screen active">
-      <div class="mascot-box">
-        <div class="mascot">🦁</div>
-      </div>
-      <h1 class="title">Leo's Math Quest</h1>
-      <p class="subtitle">ผจญภัยเกาะอัญมณีตรรกะ (IGCSE Junior)</p>
+  <!-- CANVAS BATTLE (Prodigy Style) -->
+  <canvas id="gameCanvas" width="500" height="280"></canvas>
 
-      <div class="story-banner">
-        <span>📜</span>
-        <span>ภารกิจ: จอมโจรหมอกขโมย 5 อัญมณีตรรกะไป! ช่วยกัปตันลีโอคิดเลขเพื่อกอบกู้อัญมณีกันเถอะ!</span>
-      </div>
-
-      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
-        <button class="btn" style="background: #38BDF8; box-shadow: 0 6px 0 #0284C7;" onclick="startAdventure(1)">
-          <span>🍎 ป.1 : เกาะป่าผลไม้ (บวก-ลบ รูปทรง)</span>
-        </button>
-        <button class="btn" style="background: #34D399; box-shadow: 0 6px 0 #059669;" onclick="startAdventure(2)">
-          <span>💎 ป.2 : เกาะเหมืองผลึก (คูณแม่ 2-10 เงินทอน)</span>
-        </button>
-        <button class="btn" style="background: #A855F7; box-shadow: 0 6px 0 #7E22CE;" onclick="startAdventure(3)">
-          <span>🏰 ป.3 : เกาะปราสาทตรรกะ (หาร เศษส่วน พื้นที่)</span>
-        </button>
-      </div>
-
-      <div style="margin-top: auto; padding-top: 14px; text-align: center;">
-        <p style="font-size: 0.85rem; color: #64748B; font-weight: 700;">
-          💡 เล่นสะสมแต้ม แลกส่วนลดค่าเรียนจริง 500 บ. กับสถาบัน
-        </p>
-      </div>
+  <!-- DRAGONBOX TACTILE PUZZLE PANEL -->
+  <div class="interactive-panel" id="panel-gameplay">
+    <div class="story-bubble">
+      <span>🦁</span>
+      <span id="story-cue">มอนสเตอร์เงามีเกราะปริศนา! นำชิ้นส่วนตัวเลขมาเติมเพื่อปล่อยพลัง!</span>
     </div>
 
-    <!-- หน้าจอ 2: ขณะเล่นเกม -->
-    <div id="screen-game" class="screen">
-      <div class="hud">
-        <span id="hud-qnum">ด่าน 1/10</span>
-        <span id="hud-streak" class="streak-badge">🔥 x2 คอมโบ!</span>
-        <span id="hud-points" class="hud-badge">🦁 0 แต้ม</span>
-      </div>
+    <!-- TACTILE EQUATION BOARD -->
+    <div class="equation-board" id="equation-board">
+      <span id="eq-left">7</span>
+      <span id="eq-op">+</span>
+      <div class="card-slot" id="target-slot">?</div>
+      <span>=</span>
+      <span id="eq-right">12</span>
+    </div>
 
-      <div class="timer-track">
-        <div id="timer-fill" class="timer-fill"></div>
-      </div>
+    <div class="feedback-banner" id="feedback-banner"></div>
 
-      <div class="story-banner" id="story-cue">
-        <span>🦁</span>
-        <span id="story-text">ประตูด่านเปิดแล้ว! แก้ปริศนาเลขเพื่อปลดผนึกอัญมณี!</span>
-      </div>
+    <!-- TACTILE NUMBER CARDS -->
+    <div class="tactile-cards-grid" id="cards-grid"></div>
+  </div>
 
-      <div class="question-card">
-        <span class="question-tag" id="question-skill">Cambridge Primary Math</span>
-        <div class="question-title" id="question-text">โจทย์กำลังมา...</div>
-      </div>
-
-      <div class="feedback-msg" id="feedback-text"></div>
-
-      <div class="choices-grid" id="choices-box">
-        <button class="choice-btn" onclick="submitAnswer(0)"></button>
-        <button class="choice-btn" onclick="submitAnswer(1)"></button>
-        <button class="choice-btn" onclick="submitAnswer(2)"></button>
-        <button class="choice-btn" onclick="submitAnswer(3)"></button>
-      </div>
-
-      <div style="text-align: center; margin-top: auto;">
-        <button id="btn-audio" onclick="speakQuestion()" style="background: none; border: 2px solid #CBD5E1; border-radius: 12px; padding: 6px 14px; font-weight: 800; color: #64748B; cursor: pointer;">
-          🔊 กดฟังเสียงโจทย์
+  <!-- START OVERLAY -->
+  <div class="overlay-screen" id="overlay-start" style="display: flex;">
+    <div class="overlay-card">
+      <div style="font-size: 4.5rem; margin-bottom: 8px;">🦁</div>
+      <h2 style="font-size: 1.8rem; font-weight: 800; color: #EA580C; margin-bottom: 4px;">Leo's Math Quest</h2>
+      <p style="font-size: 0.95rem; color: #64748B; font-weight: 700; margin-bottom: 16px;">
+        กอบกู้อัญมณีตรรกะแห่งอาณาจักร (Cambridge & IGCSE Junior)
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-action" style="background:#38BDF8; box-shadow:0 5px 0 #0284C7;" onclick="chooseGrade(1)">
+          🍎 ป.1 : ป่าผลไม้ (บวก-ลบ มีรูปธรรม)
+        </button>
+        <button class="btn-action" style="background:#34D399; box-shadow:0 5px 0 #059669;" onclick="chooseGrade(2)">
+          💎 ป.2 : เหมืองผลึก (คูณแม่ 2-10 ทอนเงิน)
+        </button>
+        <button class="btn-action" style="background:#A855F7; box-shadow:0 5px 0 #7E22CE;" onclick="chooseGrade(3)">
+          🏰 ป.3 : ปราสาทตรรกะ (หาร เศษส่วน พื้นที่)
         </button>
       </div>
     </div>
+  </div>
 
-    <!-- หน้าจอ 3: มินิเกมภาพบนเกาะคั่นระหว่างข้อ (MathTango Style) -->
-    <div id="island-modal" class="island-overlay">
-      <div class="island-card">
-        <div class="doubloon-splash" id="doubloon-msg">✨ ปิ๊งป่อง! +20 เหรียญทอง!</div>
-        <h3 style="font-size: 1.3rem; font-weight: 800; color: #065F46; margin-top: 4px;">เกาะแห่งตรรกะกำลังฟื้นฟู!</h3>
-        
-        <div class="island-view" onclick="tapIslandObject()">
-          <div class="island-object" id="island-asset">🥚</div>
-          <div class="island-prompt" id="island-prompt">👆 แตะไข่มอนสเตอร์ 3 ครั้งเพื่อช่วยฟัก!</div>
-        </div>
-
-        <div style="font-size: 0.95rem; font-weight: 700; color: #047857; margin-bottom: 14px;" id="island-status">
-          กอบกู้อัญมณีตรรกะได้แล้ว: 1 / 5 ดวง
-        </div>
-
-        <button class="btn btn-green" id="btn-island-next" onclick="resumeFromIsland()">
-          <span>ลุยด่านต่อไปกันเลย! ➔</span>
-        </button>
+  <!-- MATHTANGO INTERLEAVED ISLAND REWARD -->
+  <div class="overlay-screen" id="overlay-island">
+    <div class="overlay-card" style="background: linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%); border: 4px solid #34D399;">
+      <div style="font-size: 1.4rem; font-weight: 900; color: #B45309;" id="doubloon-text">✨ +25 เหรียญทองคำ!</div>
+      <h3 style="font-size: 1.3rem; font-weight: 800; color: #065F46; margin: 4px 0;">เกาะลีโอกำลังฟื้นฟู!</h3>
+      <div style="background: #A7F3D0; border: 3px solid #059669; border-radius: 16px; padding: 20px; margin: 12px 0; cursor: pointer;" onclick="tapIslandEgg()">
+        <div id="island-egg-emoji" style="font-size: 4.5rem; transition: transform 0.15s;">🥚</div>
+        <p id="island-egg-prompt" style="font-size: 1rem; font-weight: 800; color: #065F46; margin-top: 6px;">👆 แตะไข่ 3 ครั้งเพื่อช่วยฟักมอนสเตอร์!</p>
       </div>
-    </div>
-
-    <!-- หน้าจอ 4: สรุปผลและเชื่อมต่อ LINE -->
-    <div id="screen-result" class="screen">
-      <div style="text-align: center;">
-        <div class="mascot" style="font-size: 3.8rem;">👑</div>
-        <h2 class="title" style="font-size: 1.8rem;">ภารกิจสำเร็จ!</h2>
-        <p style="font-size: 0.95rem; font-weight: 700; color: #64748B;">กอบกู้อัญมณีตรรกะกลับคืนสู่เกาะได้สมบูรณ์!</p>
-      </div>
-
-      <div class="stars-row" id="stars-row">
-        <span id="star1">★</span>
-        <span id="star2">★</span>
-        <span id="star3">★</span>
-      </div>
-
-      <div style="text-align: center; font-size: 1.25rem; font-weight: 800; color: #1E3A8A; margin-bottom: 8px;" id="score-summary">
-        คะแนนรวม: 0 แต้ม
-      </div>
-
-      <div class="voucher-card">
-        <div style="font-size: 0.95rem; font-weight: 800; color: #92400E;">🎟️ คูปองส่วนลดค่าเรียนสถาบัน (10% Cap)</div>
-        <div class="voucher-code" id="voucher-code">LEO-500-XXXX</div>
-        <div style="font-size: 1.15rem; font-weight: 900; color: #B45309;">มูลค่าส่วนลด 500 บาท</div>
-        <p style="font-size: 0.8rem; color: #78350F; margin-top: 4px;">ใช้สมัครคอร์สคณิตศาสตร์ IGCSE Foundation (มีอายุ 45 วัน)</p>
-      </div>
-
-      <button class="btn btn-line" onclick="sendToLine()">
-        <span>📲 ส่งเข้า LINE เพื่อรับส่วนลด & นัดทดลองเรียนฟรี!</span>
-      </button>
-
-      <div class="parent-box" style="margin-top: 14px;">
-        <h4>📝 รายงานถึงคุณพ่อคุณแม่:</h4>
-        <p id="parent-feedback">
-          น้องมีความตั้งใจและสมาธิที่ดีเยี่ยมในการแก้โจทย์ การสลับเล่นด่านภาพบนเกาะช่วยกระตุ้นพัฒนาการสมองส่วน Working Memory ได้อย่างสมดุล สถาบันฯ ขอเชิญท่านนำรหัสคูปองนี้มาใช้เป็นส่วนลด 500 บาท พร้อมรับสิทธิ์ตรวจวัดระดับความพร้อม IGCSE ฟรี 1 ครั้งครับ
-        </p>
-      </div>
-
-      <div style="background: #F1F5F9; border-radius: 12px; padding: 10px; margin-bottom: 12px;">
-        <label style="font-size: 0.8rem; font-weight: 800; color: #475569;">⚙️ LINE ID หรือ Link ของสถาบัน (ปรับเปลี่ยนได้):</label>
-        <input type="text" id="school-line-id" class="settings-input" value="@igcsemath" placeholder="ใส่ LINE ID เช่น @school">
-      </div>
-
-      <button class="btn btn-purple" onclick="restartGame()">
-        <span>🔄 เล่นอีกครั้ง / เปลี่ยนระดับชั้น</span>
+      <button class="btn-action" style="background:#10B981; box-shadow:0 5px 0 #047857;" onclick="nextQuestFromIsland()">
+        ลุยเควสต์ต่อไป ➔
       </button>
     </div>
   </div>
 
-  <script>
-    const Sound = {
-      ctx: null,
-      init() {
-        if (!this.ctx) {
-          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-      },
-      tone(freq, type, duration, gainVal = 0.15) {
-        try {
-          this.init();
-          const osc = this.ctx.createOscillator();
-          const g = this.ctx.createGain();
-          osc.type = type;
-          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-          g.gain.setValueAtTime(gainVal, this.ctx.currentTime);
-          g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
-          osc.connect(g);
-          g.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + duration);
-        } catch(e) {}
-      },
-      correct() {
-        this.tone(523.25, 'sine', 0.12);
-        setTimeout(() => this.tone(659.25, 'sine', 0.2), 90);
-      },
-      wrong() {
-        this.tone(240, 'sawtooth', 0.25, 0.2);
-      },
-      streak() {
-        this.tone(587.33, 'triangle', 0.1);
-        setTimeout(() => this.tone(783.99, 'triangle', 0.1), 80);
-        setTimeout(() => this.tone(1046.50, 'triangle', 0.3), 160);
-      },
-      islandTap() {
-        this.tone(880, 'sine', 0.08, 0.2);
-      },
-      victory() {
-        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
-          setTimeout(() => this.tone(f, 'triangle', 0.25), i * 110);
-        });
-      }
-    };
+  <!-- VICTORY & LINE OVERLAY -->
+  <div class="overlay-screen" id="overlay-victory">
+    <div class="overlay-card">
+      <div style="font-size: 4rem;">🏆</div>
+      <h2 style="font-size: 1.6rem; font-weight: 900; color: #EA580C;">ภารกิจกอบกู้อัญมณีสำเร็จ!</h2>
+      <div style="font-size: 2.5rem; color: #F59E0B; margin: 6px 0;">★★★</div>
+      <div style="background: #FEF3C7; border: 3px dashed #F59E0B; border-radius: 16px; padding: 12px; margin: 12px 0;">
+        <div style="font-size: 0.9rem; font-weight: 800; color: #92400E;">🎟️ คูปองส่วนลดค่าเรียน (10% Cap)</div>
+        <div style="font-size: 1.5rem; font-weight: 900; color: #B45309; background: white; border-radius: 10px; padding: 4px;" id="voucher-code">LEO-500-XXXX</div>
+        <div style="font-size: 1.1rem; font-weight: 900; color: #B45309; margin-top: 4px;">มูลค่าส่วนลด 500 บาท</div>
+      </div>
+      <button class="btn-action" style="background:#06C755; box-shadow:0 5px 0 #04953F; margin-bottom: 8px;" onclick="sendLineVoucher()">
+        📲 ส่งเข้า LINE เพื่อรับส่วนลด 500 บ. & นัดทดลองเรียนฟรี
+      </button>
+      <button class="btn-action" style="background:#64748B; box-shadow:0 5px 0 #475569;" onclick="restartAll()">
+        🔄 เล่นอีกครั้ง
+      </button>
+    </div>
+  </div>
+</div>
 
-    let currentGrade = 1;
-    let questionIndex = 0;
-    const totalQuestions = 10;
-    let score = 0;
-    let lionPoints = 0;
-    let streakCount = 0;
-    let wrongStreak = 0;
-    let currentDifficulty = 2;
-    let timeLeft = 0;
-    let maxTime = 20;
-    let timerTimer = null;
-    let currentQ = null;
-    let isAnswering = false;
+<script>
+const Sfx = {
+  ctx: null,
+  init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+  play(freq, type, dur, gain=0.15) {
+    try {
+      this.init();
+      const o = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      g.gain.setValueAtTime(gain, this.ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+      o.connect(g); g.connect(this.ctx.destination);
+      o.start(); o.stop(this.ctx.currentTime + dur);
+    } catch(e){}
+  },
+  beam() {
+    this.play(600, 'sine', 0.1);
+    setTimeout(() => this.play(800, 'sine', 0.15), 50);
+    setTimeout(() => this.play(1200, 'triangle', 0.25), 100);
+  },
+  hit() { this.play(180, 'sawtooth', 0.2, 0.25); },
+  correct() {
+    this.play(523, 'sine', 0.1);
+    setTimeout(() => this.play(659, 'sine', 0.2), 90);
+  },
+  wrong() { this.play(220, 'sawtooth', 0.25, 0.2); },
+  eggTap() { this.play(900, 'sine', 0.08, 0.2); }
+};
 
-    let islandTaps = 0;
-    let gemsRecovered = 0;
-    const islandAssets = ['🥚', '🐣', '🐥', '🦕', '🏰', '🌴', '💎'];
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-    const storyPrompts = [
-      "ถ้ำหินปิดอยู่! คิดเลขให้ถูกต้องเพื่อเปิดทาง!",
-      "พบมอนสเตอร์เงาตัวเลข! ปล่อยพลังคิดคำนวณ!",
-      "สะพานเวทมนตร์ขาด! เชื่อมต่อด้วยตัวเลขที่หายไป!",
-      "กล่องสมบัติโบราณต้องการรหัสเปิด!",
-      "ใกล้ถึงยอดปราสาทแล้ว! รวบรวมสมาธิให้มั่นคง!"
-    ];
+let gameState = {
+  grade: 1,
+  qIndex: 0,
+  totalQ: 10,
+  score: 0,
+  lionPoints: 0,
+  streak: 0,
+  difficulty: 2,
+  currentQ: null,
+  answered: false,
+  leo: { x: 90, y: 190, r: 35, frame: 0 },
+  monster: { x: 410, y: 190, maxHp: 100, hp: 100, hurt: false, eyeColor: '#A855F7' },
+  particles: [],
+  projectiles: [],
+  islandTaps: 0
+};
 
-    const praises = [
-      "เก่งมากเลยคนดี! 🦁✨",
-      "ยอดเยี่ยม ถูกต้องนะคร้าบ! 🎉",
-      "ไหวพริบเฉียบคมมาก! 🚀",
-      "สมองติดสปีดแล้ว ลุยต่อ! ⚡"
-    ];
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawSkyAndLandscape();
+  drawCaptainLeo();
+  drawMonster();
+  updateProjectiles();
+  updateParticles();
+  gameState.leo.frame += 0.05;
+  requestAnimationFrame(animate);
+}
 
-    const encouragements = [
-      "ไม่เป็นไรนะ ลองคิดใหม่อีกนิด! 💪",
-      "เกือบถูกแล้วคนเก่ง ลีโอเอาใจช่วย! 🦁",
-      "ผิดเป็นครู ค่อยๆ นึกนะคนดี! 💖"
-    ];
+function drawSkyAndLandscape() {
+  const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  sky.addColorStop(0, '#38BDF8');
+  sky.addColorStop(0.6, '#BAE6FD');
+  sky.addColorStop(1, '#86EFAC');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    function showScreen(screenId) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(screenId).classList.add('active');
+  ctx.fillStyle = '#6EE7B7';
+  ctx.beginPath();
+  ctx.arc(120, 240, 80, Math.PI, 0);
+  ctx.arc(360, 240, 100, Math.PI, 0);
+  ctx.fill();
+
+  ctx.fillStyle = '#15803D';
+  ctx.fillRect(0, 220, canvas.width, 60);
+
+  ctx.fillStyle = '#22C55E';
+  ctx.beginPath();
+  ctx.ellipse(canvas.width / 2, 220, 260, 20, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawCaptainLeo() {
+  const l = gameState.leo;
+  const bob = Math.sin(l.frame) * 4;
+  const x = l.x;
+  const y = l.y + bob;
+
+  ctx.fillStyle = '#EA580C';
+  ctx.beginPath();
+  ctx.arc(x, y, 42, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#FDBA74';
+  ctx.beginPath();
+  ctx.arc(x, y, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#EA580C';
+  ctx.beginPath();
+  ctx.arc(x - 24, y - 26, 12, 0, Math.PI * 2);
+  ctx.arc(x + 24, y - 26, 12, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#1E293B';
+  ctx.beginPath();
+  ctx.arc(x - 10, y - 4, 4, 0, Math.PI * 2);
+  ctx.arc(x + 10, y - 4, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#C2410C';
+  ctx.beginPath();
+  ctx.moveTo(x - 6, y + 5);
+  ctx.lineTo(x + 6, y + 5);
+  ctx.lineTo(x, y + 12);
+  ctx.fill();
+
+  ctx.fillStyle = '#6366F1';
+  ctx.beginPath();
+  ctx.moveTo(x - 22, y - 20);
+  ctx.lineTo(x + 22, y - 20);
+  ctx.lineTo(x - 0, y - 62);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#FBBF24';
+  ctx.fillRect(x - 26, y - 24, 52, 6);
+
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(x - 40, y + 42, 80, 8);
+  ctx.fillStyle = '#22C55E';
+  ctx.fillRect(x - 40, y + 42, 80, 8);
+}
+
+function drawMonster() {
+  const m = gameState.monster;
+  const shake = m.hurt ? (Math.random() - 0.5) * 12 : 0;
+  const x = m.x + shake;
+  const y = m.y + (m.hurt ? -4 : Math.cos(gameState.leo.frame) * 3);
+
+  ctx.fillStyle = m.hurt ? '#EF4444' : '#475569';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 6, 40, 34, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = m.eyeColor;
+  ctx.beginPath();
+  ctx.arc(x - 14, y - 2, 7, 0, Math.PI * 2);
+  ctx.arc(x + 14, y - 2, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.arc(x - 14, y - 2, 2.5, 0, Math.PI * 2);
+  ctx.arc(x + 14, y - 2, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(x - 45, y - 55, 90, 9);
+  const hpPct = Math.max(0, m.hp / m.maxHp);
+  ctx.fillStyle = hpPct > 0.5 ? '#E11D48' : '#F59E0B';
+  ctx.fillRect(x - 45, y - 55, 90 * hpPct, 9);
+}
+
+function updateProjectiles() {
+  for (let i = gameState.projectiles.length - 1; i >= 0; i--) {
+    const p = gameState.projectiles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+
+    ctx.fillStyle = '#F59E0B';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (p.x >= gameState.monster.x - 20) {
+      triggerMonsterHit();
+      gameState.projectiles.splice(i, 1);
+    }
+  }
+}
+
+function updateParticles() {
+  for (let i = gameState.particles.length - 1; i >= 0; i--) {
+    const pt = gameState.particles[i];
+    pt.x += pt.vx;
+    pt.y += pt.vy;
+    pt.alpha -= 0.03;
+    if (pt.alpha <= 0) {
+      gameState.particles.splice(i, 1);
+      continue;
+    }
+    ctx.fillStyle = `rgba(${pt.color}, ${pt.alpha})`;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function triggerMonsterHit() {
+  Sfx.hit();
+  const m = gameState.monster;
+  m.hurt = true;
+  m.hp = Math.max(0, m.hp - 35);
+  setTimeout(() => m.hurt = false, 350);
+
+  for (let i = 0; i < 16; i++) {
+    gameState.particles.push({
+      x: m.x,
+      y: m.y,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8,
+      size: Math.random() * 5 + 3,
+      alpha: 1,
+      color: '245, 158, 11'
+    });
+  }
+}
+
+const questionsBank = {
+  1: },
+    { left: 8, op: "+", right: 15, ans: 7, options: },
+    { left: 12, op: "-", right: 7, ans: 5, options: },
+    { left: 6, op: "+", right: 16, ans: 10, options: },
+    { left: 14, op: "-", right: 8, ans: 6, options: }
+  ],
+  2: },
+    { left: 45, op: "+", right: 70, ans: 25, options: [20, 25, 30, 35] },
+    { left: 5, op: "×", right: 40, ans: 8, options: },
+    { left: 100, op: "-", right: 65, ans: 35, options: [30, 35, 40, 45] },
+    { left: 4, op: "×", right: 32, ans: 8, options: }
+  ],
+  3: },
+    { left: 120, op: "+", right: 200, ans: 80, options: [60, 70, 80, 90] },
+    { left: 72, op: "÷", right: 8, ans: 9, options: },
+    { left: 15, op: "×", right: 60, ans: 4, options: },
+    { left: 250, op: "-", right: 180, ans: 70, options: [60, 70, 80, 90] }
+  ]
+};
+
+function chooseGrade(g) {
+  gameState.grade = g;
+  gameState.qIndex = 0;
+  gameState.score = 0;
+  gameState.lionPoints = 0;
+  gameState.streak = 0;
+  document.getElementById('overlay-start').style.display = 'none';
+  loadNextPuzzle();
+}
+
+function loadNextPuzzle() {
+  if (gameState.qIndex >= gameState.totalQ) {
+    showVictoryScreen();
+    return;
+  }
+  gameState.qIndex++;
+  gameState.answered = false;
+
+  document.getElementById('hud-round').innerText = `เควสต์ ${gameState.qIndex}/${gameState.totalQ}`;
+  document.getElementById('target-slot').innerText = "?";
+  document.getElementById('target-slot').classList.remove('filled');
+  document.getElementById('feedback-banner').innerText = "";
+
+  gameState.monster.hp = 100;
+
+  const list = questionsBank[gameState.grade];
+  const q = list[(gameState.qIndex - 1) % list.length];
+  gameState.currentQ = q;
+
+  document.getElementById('eq-left').innerText = q.left;
+  document.getElementById('eq-op').innerText = q.op;
+  document.getElementById('eq-right').innerText = q.right;
+
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = "";
+  q.options.forEach(val => {
+    const card = document.createElement('div');
+    card.className = 'tactile-card';
+    card.innerHTML = `<span>${val}</span><div class="dots">${'<div class="dot"></div>'.repeat(Math.min(val, 6))}</div>`;
+    card.onclick = () => selectTactileCard(val, card);
+    grid.appendChild(card);
+  });
+}
+
+function selectTactileCard(val, cardEl) {
+  if (gameState.answered) return;
+  gameState.answered = true;
+
+  const slot = document.getElementById('target-slot');
+  slot.innerText = val;
+  slot.classList.add('filled');
+
+  const fb = document.getElementById('feedback-banner');
+
+  if (val === gameState.currentQ.ans) {
+    Sfx.correct();
+    gameState.streak++;
+    gameState.score += 15;
+    gameState.lionPoints += 35;
+    document.getElementById('hud-lion-points').innerText = `🦁 ${gameState.lionPoints} แต้ม`;
+
+    if (gameState.streak >= 3) {
+      document.getElementById('hud-streak').style.display = 'inline-block';
     }
 
-    function startAdventure(grade) {
-      currentGrade = grade;
-      questionIndex = 0;
-      score = 0;
-      lionPoints = 0;
-      streakCount = 0;
-      wrongStreak = 0;
-      currentDifficulty = 2;
-      gemsRecovered = 0;
-      maxTime = (grade === 1) ? 30 : 20;
+    fb.style.color = '#059669';
+    fb.innerText = "✨ ถูกต้อง! พลังคณิตศาสตร์ยิงโจมตี!";
 
-      document.getElementById('hud-points').innerText = `🦁 0 แต้ม`;
-      document.getElementById('hud-streak').style.display = 'none';
-      document.getElementById('feedback-text').innerText = '';
+    Sfx.beam();
+    gameState.projectiles.push({
+      x: gameState.leo.x + 30,
+      y: gameState.leo.y - 10,
+      vx: 12,
+      vy: 0
+    });
 
-      showScreen('screen-game');
-      loadNextQuestion();
-    }
+    setTimeout(showIslandScene, 1200);
 
-    function makeQuestion(grade, diff) {
-      const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-      let text = "";
-      let ans = 0;
-      let skill = "Number & Logic";
+  } else {
+    Sfx.wrong();
+    gameState.streak = 0;
+    document.getElementById('hud-streak').style.display = 'none';
+    fb.style.color = '#DC2626';
+    fb.innerText = "💪 ตัวเลขยังไม่สมดุล ลองคิดดูใหม่อีกนิดนะ!";
+    setTimeout(() => {
+      gameState.answered = false;
+      slot.innerText = "?";
+      slot.classList.remove('filled');
+    }, 1400);
+  }
+}
 
-      if (grade === 1) {
-        if (diff === 1) {
-          let a = rand(2, 9), b = rand(1, 8);
-          text = `${a} + ${b} = ?`;
-          ans = a + b;
-          skill = "การบวกเลขไม่เกิน 20";
-        } else if (diff === 2) {
-          if (Math.random() > 0.4) {
-            let a = rand(11, 20), b = rand(2, 9);
-            text = `${a} - ${b} = ?`;
-            ans = a - b;
-            skill = "การลบจำนวนไม่เกิน 20";
-          } else {
-            let s = rand(2, 8);
-            text = `แบบรูป: ${s}, ${s+2}, ${s+4}, [ ? ]`;
-            ans = s + 6;
-            skill = "แบบรูปนับเพิ่มทีละ 2";
-          }
-        } else {
-          let a = rand(10, 30), b = rand(10, 20);
-          text = `${a} + ${b} = ?`;
-          ans = a + b;
-          skill = "การบวกเลขสองหลัก";
-        }
-      } else if (grade === 2) {
-        if (diff === 1) {
-          let a = rand(2, 5), b = rand(2, 5);
-          text = `${a} × ${b} = ?`;
-          ans = a * b;
-          skill = "สูตรคูณแม่ 2-5";
-        } else if (diff === 2) {
-          if (Math.random() > 0.5) {
-            let m =[rand(0, 3)], n = rand(4, 9);
-            text = `${m} × ${n} = ?`;
-            ans = m * n;
-            skill = "สูตรคูณและมโนทัศน์";
-          } else {
-            let cost = rand(25, 45);
-            text = `จ่าย 100 บ. ซื้อของ ${cost} บ. ทอนกี่บาท?`;
-            ans = 100 - cost;
-            skill = "เงินตราและเงินทอน";
-          }
-        } else {
-          let a = rand(120, 300), b = rand(80, 180);
-          text = `${a} + ${b} = ?`;
-          ans = a + b;
-          skill = "การบวกเลขสามหลักมีตัวทด";
-        }
-      } else {
-        if (diff === 1) {
-          let a = rand(12, 25), b = rand(2, 4);
-          text = `${a} × ${b} = ?`;
-          ans = a * b;
-          skill = "การคูณ 2 หลักกับ 1 หลัก";
-        } else if (diff === 2) {
-          let t = rand(1, 3);
-          if (t === 1) {
-            let div = rand(4, 8), quot = rand(6, 12);
-            text = `${div * quot} ÷ ${div} = ?`;
-            ans = quot;
-            skill = "การหารจำนวน";
-          } else if (t === 2) {
-            let cost = rand(100, 180), sale = cost + rand(40, 80);
-            text = `ทุน ${cost} บ. ขายได้ ${sale} บ. กำไรกี่บาท?`;
-            ans = sale - cost;
-            skill = "การคำนวณกำไร-ต้นทุน (ธุรกิจ)";
-          } else {
-            let w = rand(4, 7), l = rand(8, 12);
-            text = `สี่เหลี่ยมผืนผ้า กว้าง ${w} ยาว ${l} ม. ความยาวรอบรูปกี่เมตร?`;
-            ans = 2 * (w + l);
-            skill = "ความยาวรอบรูป (Perimeter)";
-          }
-        } else {
-          let a = rand(3, 6), b = rand(4, 7), c = rand(15, 30);
-          text = `(${a} × ${b}) + ${c} = ?`;
-          ans = (a * b) + c;
-          skill = "ลำดับการคำนวณระคน";
-        }
-      }
+const islandCreatures = ['🐣', '🐥', '🦕', '🦄', '🐲'];
 
-      let choices = [ans];
-      while (choices.length < 4) {
-        let fake = ans + rand(-6, 8);
-        if (fake >= 0 && fake !== ans && !choices.includes(fake)) {
-          choices.push(fake);
-        }
-      }
-      choices.sort(() => Math.random() - 0.5);
+function showIslandScene() {
+  gameState.islandTaps = 0;
+  const modal = document.getElementById('overlay-island');
+  const egg = document.getElementById('island-egg-emoji');
+  const prompt = document.getElementById('island-egg-prompt');
 
-      return { text, ans, choices, skill };
-    }
+  egg.innerText = '🥚';
+  prompt.innerText = '👆 แตะไข่ 3 ครั้งเพื่อช่วยฟักมอนสเตอร์!';
+  modal.style.display = 'flex';
+}
 
-    function loadNextQuestion() {
-      if (questionIndex >= totalQuestions) {
-        endAdventure();
-        return;
-      }
+function tapIslandEgg() {
+  gameState.islandTaps++;
+  Sfx.eggTap();
+  const egg = document.getElementById('island-egg-emoji');
+  egg.style.transform = `scale(${1 + gameState.islandTaps * 0.1}) rotate(${gameState.islandTaps % 2 === 0 ? 10 : -10}deg)`;
 
-      questionIndex++;
-      isAnswering = false;
+  if (gameState.islandTaps >= 3) {
+    const c = islandCreatures[(gameState.qIndex - 1) % islandCreatures.length];
+    egg.innerText = c;
+    egg.style.transform = 'scale(1.3)';
+    document.getElementById('island-egg-prompt').innerText = `🎉 ฟักตัวสำเร็จ! น้องมอนสเตอร์ร่วมเดินทางแล้ว!`;
+  }
+}
 
-      document.getElementById('hud-qnum').innerText = `ด่าน ${questionIndex}/${totalQuestions}`;
-      document.getElementById('story-text').innerText = storyPrompts[questionIndex % storyPrompts.length];
+function nextQuestFromIsland() {
+  document.getElementById('overlay-island').style.display = 'none';
+  loadNextPuzzle();
+}
 
-      const streakEl = document.getElementById('hud-streak');
-      streakEl.style.display = (streakCount >= 3) ? 'inline-block' : 'none';
+function showVictoryScreen() {
+  const code = `LEO-500-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+  document.getElementById('voucher-code').innerText = code;
+  document.getElementById('overlay-victory').style.display = 'flex';
+}
 
-      currentQ = makeQuestion(currentGrade, currentDifficulty);
-      document.getElementById('question-text').innerText = currentQ.text;
-      document.getElementById('question-skill').innerText = currentQ.skill;
-      document.getElementById('feedback-text').innerText = '';
+function sendLineVoucher() {
+  const code = document.getElementById('voucher-code').innerText;
+  const msg = `สวัสดีค่ะ นำรหัสคูปอง [${code}] จากเกม Leo's Math Quest (คะแนน ${gameState.score} แต้ม) มาขอใช้สิทธิ์ส่วนลดค่าเรียน 500 บาท และนัดหมายตรวจวัดระดับความพร้อม IGCSE ฟรีค่ะ`;
+  window.open(`https://line.me/R/msg/text/?${encodeURIComponent(msg)}`, '_blank');
+}
 
-      const btns = document.querySelectorAll('.choice-btn');
-      btns.forEach((b, i) => {
-        b.innerText = currentQ.choices[i];
-        b.className = 'choice-btn';
-        b.disabled = false;
-      });
+function restartAll() {
+  document.getElementById('overlay-victory').style.display = 'none';
+  document.getElementById('overlay-start').style.display = 'flex';
+}
 
-      startCountdown();
-    }
-
-    function startCountdown() {
-      clearInterval(timerTimer);
-      timeLeft = maxTime;
-      const bar = document.getElementById('timer-fill');
-      bar.style.width = '100%';
-      bar.style.backgroundColor = 'var(--success)';
-
-      timerTimer = setInterval(() => {
-        timeLeft--;
-        let pct = (timeLeft / maxTime) * 100;
-        bar.style.width = `${pct}%`;
-
-        if (pct < 30) bar.style.backgroundColor = 'var(--danger)';
-        else if (pct < 60) bar.style.backgroundColor = 'var(--warning)';
-
-        if (timeLeft <= 0) {
-          clearInterval(timerTimer);
-          timeOutAction();
-        }
-      }, 1000);
-    }
-
-    function submitAnswer(idx) {
-      if (isAnswering) return;
-      isAnswering = true;
-      clearInterval(timerTimer);
-
-      const btns = document.querySelectorAll('.choice-btn');
-      const chosen = currentQ.choices[idx];
-      const isRight = (chosen === currentQ.ans);
-
-      btns.forEach((b, i) => {
-        b.disabled = true;
-        if (currentQ.choices[i] === currentQ.ans) b.classList.add('correct');
-      });
-
-      const feedback = document.getElementById('feedback-text');
-
-      if (isRight) {
-        Sound.correct();
-        streakCount++;
-        wrongStreak = 0;
-
-        let earned = 10 + Math.floor(timeLeft / 2);
-        if (streakCount >= 3) {
-          earned *= 2;
-          Sound.streak();
-          feedback.style.color = '#E11D48';
-          feedback.innerText = "🔥 ดับเบิ้ลพลังคูณ 2! ไหวพริบยอดเยี่ยม!";
-        } else {
-          feedback.style.color = '#059669';
-          feedback.innerText = praises[Math.floor(Math.random() * praises.length)];
-        }
-
-        score += earned;
-        lionPoints += 35;
-        document.getElementById('hud-points').innerText = `🦁 ${lionPoints} แต้ม`;
-
-        if (streakCount === 3 && currentDifficulty < 3) currentDifficulty = 3;
-
-        setTimeout(triggerIslandReward, 1000);
-
-      } else {
-        Sound.wrong();
-        btns[idx].classList.add('wrong');
-        wrongStreak++;
-        streakCount = 0;
-
-        feedback.style.color = '#D97706';
-        feedback.innerText = encouragements[Math.floor(Math.random() * encouragements.length)];
-
-        if (wrongStreak >= 2 && currentDifficulty > 1) currentDifficulty = 1;
-
-        setTimeout(loadNextQuestion, 1600);
-      }
-    }
-
-    function timeOutAction() {
-      if (isAnswering) return;
-      isAnswering = true;
-      Sound.wrong();
-      wrongStreak++;
-      streakCount = 0;
-
-const btns = document.querySelectorAll('.choice-btn');
-      btns.forEach((b, i) => {
-        b.disabled = true;
-        if (currentQ.choices[i] === currentQ.ans) b.classList.add('correct');
-      });
-
-      const feedback = document.getElementById('feedback-text');
-      feedback.style.color = '#DC2626';
-      feedback.innerText = "⏰ หมดเวลา! ลีโอพาไปลุยข้อใหม่นะ!";
-
-      if (wrongStreak >= 2 && currentDifficulty > 1) currentDifficulty = 1;
-      setTimeout(loadNextQuestion, 1600);
-    }
-
-    function triggerIslandReward() {
-      islandTaps = 0;
-      gemsRecovered = Math.min(5, gemsRecovered + 1);
-
-      const modal = document.getElementById('island-modal');
-      const asset = document.getElementById('island-asset');
-      const prompt = document.getElementById('island-prompt');
-      const status = document.getElementById('island-status');
-      const doubloon = document.getElementById('doubloon-msg');
-
-      doubloon.innerText = `✨ ปิ๊งป่อง! +25 เหรียญทองคำ!`;
-      asset.innerText = islandAssets[Math.min(islandAssets.length - 1, gemsRecovered)];
-      prompt.innerText = "👆 แตะที่ภาพ 3 ครั้ง เพื่อส่งพลังฟื้นฟูเกาะ!";
-      status.innerText = `กอบกู้อัญมณีตรรกะได้แล้ว: ${gemsRecovered} / 5 ดวง`;
-
-      modal.style.display = 'flex';
-    }
-
-    function tapIslandObject() {
-      islandTaps++;
-      Sound.islandTap();
-      const asset = document.getElementById('island-asset');
-      asset.classList.add('tapped');
-      setTimeout(() => asset.classList.remove('tapped'), 150);
-
-      if (islandTaps >= 3) {
-        document.getElementById('island-prompt').innerText = "🎉 เกาะสว่างไสวแล้ว! เดินทางต่อกันเลย!";
-      }
-    }
-
-    function resumeFromIsland() {
-      document.getElementById('island-modal').style.display = 'none';
-      loadNextQuestion();
-    }
-
-    function speakQuestion() {
-      if ('speechSynthesis' in window && currentQ) {
-        window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(currentQ.text.replace('=', 'เท่ากับ').replace('?', 'อะไร'));
-        utter.lang = 'th-TH';
-        utter.rate = 0.9;
-        window.speechSynthesis.speak(utter);
-      } else {
-        alert("เสียงโจทย์: " + currentQ.text);
-      }
-    }
-
-    function endAdventure() {
-      clearInterval(timerTimer);
-      Sound.victory();
-      showScreen('screen-result');
-
-      document.getElementById('score-summary').innerText = `คะแนนทำภารกิจ: ${score} แต้ม | แต้มสิงโตสะสม: ${lionPoints} แต้ม`;
-
-      const randStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-      const voucherCode = `LEO-500-${randStr}`;
-      document.getElementById('voucher-code').innerText = voucherCode;
-
-      const s1 = document.getElementById('star1');
-      const s2 = document.getElementById('star2');
-      const s3 = document.getElementById('star3');
-      s1.className = ''; s2.className = ''; s3.className = '';
-
-      if (score >= 180) {
-        s1.classList.add('star-gold');
-        setTimeout(() => s2.classList.add('star-gold'), 200);
-        setTimeout(() => s3.classList.add('star-gold'), 400);
-      } else if (score >= 100) {
-        s1.classList.add('star-gold');
-        setTimeout(() => s2.classList.add('star-gold'), 200);
-      } else {
-        s1.classList.add('star-gold');
-      }
-    }
-
-    function sendToLine() {
-      const code = document.getElementById('voucher-code').innerText;
-      const schoolLine = document.getElementById('school-line-id').value.trim() || "@igcsemath";
-      const message = `สวัสดีค่ะ นำรหัสคูปอง [${code}] จากเกม Leo's Math Quest (คะแนน ${score} แต้ม) มาขอใช้สิทธิ์ส่วนลดค่าเรียน 500 บาท และนัดหมายตรวจวัดระดับความพร้อม IGCSE ฟรีค่ะ (ติดต่อสถาบัน: ${schoolLine})`;
-      
-      const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
-      window.open(lineUrl, '_blank');
-    }
-
-    function restartGame() {
-      showScreen('screen-start');
-    }
-  </script>
+animate();
+</script>
 </body>
 </html>
