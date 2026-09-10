@@ -43,7 +43,7 @@
     }
     #gameCanvas {
       width: 100%;
-      height: 280px;
+      height: 260px;
       background: #87CEEB;
       display: block;
     }
@@ -185,6 +185,9 @@
       display: block;
       width: 100%;
     }
+    .btn-action * {
+      pointer-events: none;
+    }
     .btn-action:active {
       transform: translateY(3px);
       box-shadow: 0 2px 0 var(--primary-dark);
@@ -224,7 +227,7 @@
   </div>
 
   <!-- CANVAS BATTLE (Prodigy Style) -->
-  <canvas id="gameCanvas" width="500" height="280"></canvas>
+  <canvas id="gameCanvas" width="500" height="260"></canvas>
 
   <!-- DRAGONBOX TACTILE PUZZLE PANEL -->
   <div class="interactive-panel" id="panel-gameplay">
@@ -235,11 +238,11 @@
 
     <!-- TACTILE EQUATION BOARD -->
     <div class="equation-board" id="equation-board">
-      <span id="eq-left">7</span>
+      <span id="eq-left">5</span>
       <span id="eq-op">+</span>
       <div class="card-slot" id="target-slot">?</div>
       <span>=</span>
-      <span id="eq-right">12</span>
+      <span id="eq-right">9</span>
     </div>
 
     <div class="feedback-banner" id="feedback-banner"></div>
@@ -350,8 +353,8 @@ let gameState = {
   difficulty: 2,
   currentQ: null,
   answered: false,
-  leo: { x: 90, y: 190, r: 35, frame: 0 },
-  monster: { x: 410, y: 190, maxHp: 100, hp: 100, hurt: false, eyeColor: '#A855F7' },
+  leo: { x: 90, y: 180, frame: 0 },
+  monster: { x: 410, y: 180, maxHp: 100, hp: 100, hurt: false, eyeColor: '#A855F7' },
   particles: [],
   projectiles: [],
   islandTaps: 0
@@ -383,11 +386,11 @@ function drawSkyAndLandscape() {
   ctx.fill();
 
   ctx.fillStyle = '#15803D';
-  ctx.fillRect(0, 220, canvas.width, 60);
+  ctx.fillRect(0, 210, canvas.width, 50);
 
   ctx.fillStyle = '#22C55E';
   ctx.beginPath();
-  ctx.ellipse(canvas.width / 2, 220, 260, 20, 0, 0, Math.PI * 2);
+  ctx.ellipse(canvas.width / 2, 210, 260, 20, 0, 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -399,18 +402,18 @@ function drawCaptainLeo() {
 
   ctx.fillStyle = '#EA580C';
   ctx.beginPath();
-  ctx.arc(x, y, 42, 0, Math.PI * 2);
+  ctx.arc(x, y, 40, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#FDBA74';
   ctx.beginPath();
-  ctx.arc(x, y, 30, 0, Math.PI * 2);
+  ctx.arc(x, y, 28, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#EA580C';
   ctx.beginPath();
-  ctx.arc(x - 24, y - 26, 12, 0, Math.PI * 2);
-  ctx.arc(x + 24, y - 26, 12, 0, Math.PI * 2);
+  ctx.arc(x - 22, y - 24, 11, 0, Math.PI * 2);
+  ctx.arc(x + 22, y - 24, 11, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#1E293B';
@@ -428,18 +431,18 @@ function drawCaptainLeo() {
 
   ctx.fillStyle = '#6366F1';
   ctx.beginPath();
-  ctx.moveTo(x - 22, y - 20);
-  ctx.lineTo(x + 22, y - 20);
-  ctx.lineTo(x - 0, y - 62);
+  ctx.moveTo(x - 20, y - 18);
+  ctx.lineTo(x + 20, y - 18);
+  ctx.lineTo(x, y - 58);
   ctx.closePath();
   ctx.fill();
   ctx.fillStyle = '#FBBF24';
-  ctx.fillRect(x - 26, y - 24, 52, 6);
+  ctx.fillRect(x - 24, y - 22, 48, 5);
 
   ctx.fillStyle = 'rgba(0,0,0,0.4)';
-  ctx.fillRect(x - 40, y + 42, 80, 8);
+  ctx.fillRect(x - 35, y + 38, 70, 7);
   ctx.fillStyle = '#22C55E';
-  ctx.fillRect(x - 40, y + 42, 80, 8);
+  ctx.fillRect(x - 35, y + 38, 70, 7);
 }
 
 function drawMonster() {
@@ -450,26 +453,26 @@ function drawMonster() {
 
   ctx.fillStyle = m.hurt ? '#EF4444' : '#475569';
   ctx.beginPath();
-  ctx.ellipse(x, y + 6, 40, 34, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 6, 38, 32, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = m.eyeColor;
   ctx.beginPath();
-  ctx.arc(x - 14, y - 2, 7, 0, Math.PI * 2);
-  ctx.arc(x + 14, y - 2, 7, 0, Math.PI * 2);
+  ctx.arc(x - 13, y - 2, 7, 0, Math.PI * 2);
+  ctx.arc(x + 13, y - 2, 7, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#FFFFFF';
   ctx.beginPath();
-  ctx.arc(x - 14, y - 2, 2.5, 0, Math.PI * 2);
-  ctx.arc(x + 14, y - 2, 2.5, 0, Math.PI * 2);
+  ctx.arc(x - 13, y - 2, 2.5, 0, Math.PI * 2);
+  ctx.arc(x + 13, y - 2, 2.5, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.fillRect(x - 45, y - 55, 90, 9);
+  ctx.fillRect(x - 40, y - 50, 80, 8);
   const hpPct = Math.max(0, m.hp / m.maxHp);
   ctx.fillStyle = hpPct > 0.5 ? '#E11D48' : '#F59E0B';
-  ctx.fillRect(x - 45, y - 55, 90 * hpPct, 9);
+  ctx.fillRect(x - 40, y - 50, 80 * hpPct, 8);
 }
 
 function updateProjectiles() {
@@ -500,7 +503,7 @@ function updateParticles() {
       gameState.particles.splice(i, 1);
       continue;
     }
-    ctx.fillStyle = `rgba(${pt.color}, ${pt.alpha})`;
+    ctx.fillStyle = `rgba(${pt.color},${pt.alpha})`;
     ctx.beginPath();
     ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
     ctx.fill();
