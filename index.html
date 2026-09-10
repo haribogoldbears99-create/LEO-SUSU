@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Leo's Math Quest: มหาศึกเกาะอัญมณีตรรกะ</title>
+  <title>Leo's Math Quest: ศึก 4 อัญมณีตรรกะ</title>
   <style>
     :root {
       --primary: #FF7A00;
       --primary-dark: #D96500;
       --secondary: #0284C7;
-      --bg: #0F172A;
+      --accent: #9333EA;
+      --success: #10B981;
+      --danger: #EF4444;
+      --warning: #F59E0B;
       --card-bg: #FFFFFF;
       --text: #1E293B;
     }
@@ -34,7 +37,7 @@
       width: 100%;
       max-width: 500px;
       background: #FFFFFF;
-      border-radius: 24px;
+      border-radius: 26px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.5);
       overflow: hidden;
       display: flex;
@@ -43,7 +46,7 @@
     }
     #gameCanvas {
       width: 100%;
-      height: 260px;
+      height: 250px;
       background: #87CEEB;
       display: block;
     }
@@ -53,11 +56,20 @@
       align-items: center;
       background: #1E293B;
       color: white;
-      padding: 10px 16px;
-      font-size: 0.9rem;
+      padding: 10px 14px;
+      font-size: 0.88rem;
       font-weight: 700;
     }
-    .hud-badge {
+    .hud-gem-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #334155;
+      padding: 4px 10px;
+      border-radius: 12px;
+      color: #F8FAFC;
+    }
+    .hud-points {
       background: #F59E0B;
       color: #78350F;
       padding: 4px 10px;
@@ -73,20 +85,20 @@
     }
     @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
     .interactive-panel {
-      padding: 16px;
+      padding: 14px;
       background: #F8FAFC;
       border-top: 3px solid #E2E8F0;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       min-height: 280px;
     }
     .story-bubble {
       background: #EFF6FF;
       border: 2px solid #BFDBFE;
       border-radius: 14px;
-      padding: 10px 14px;
-      font-size: 0.95rem;
+      padding: 8px 12px;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #1E40AF;
       display: flex;
@@ -97,20 +109,20 @@
     .equation-board {
       background: #FFFBEB;
       border: 3px dashed #F59E0B;
-      border-radius: 18px;
-      padding: 14px 10px;
+      border-radius: 16px;
+      padding: 12px 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 900;
       color: #78350F;
-      min-height: 85px;
+      min-height: 80px;
     }
     .card-slot {
-      min-width: 60px;
-      height: 60px;
+      min-width: 58px;
+      height: 58px;
       background: white;
       border: 3px solid #CBD5E1;
       border-radius: 14px;
@@ -133,8 +145,8 @@
       background: white;
       border: 3px solid #94A3B8;
       border-radius: 16px;
-      padding: 12px 4px;
-      font-size: 1.4rem;
+      padding: 10px 4px;
+      font-size: 1.35rem;
       font-weight: 900;
       color: #1E293B;
       cursor: pointer;
@@ -156,18 +168,18 @@
     .tactile-card .dots {
       display: flex;
       gap: 2px;
-      margin-top: 4px;
+      margin-top: 3px;
     }
     .tactile-card .dot {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       background: #F59E0B;
       border-radius: 50%;
     }
     .feedback-banner {
-      min-height: 28px;
+      min-height: 24px;
       text-align: center;
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 800;
     }
     .btn-action {
@@ -176,7 +188,7 @@
       border: none;
       border-radius: 16px;
       padding: 14px;
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 5px 0 var(--primary-dark);
@@ -195,13 +207,13 @@
     .overlay-screen {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.92);
       backdrop-filter: blur(4px);
       display: none;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 24px;
+      padding: 20px;
       z-index: 100;
       color: white;
       text-align: center;
@@ -210,24 +222,41 @@
       background: white;
       color: var(--text);
       border-radius: 24px;
-      padding: 22px;
+      padding: 20px;
       width: 100%;
       max-width: 440px;
       box-shadow: 0 16px 36px rgba(0,0,0,0.3);
+    }
+    .gem-card {
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #F8FAFC;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.1s;
+      text-align: left;
+    }
+    .gem-card:active {
+      transform: scale(0.98);
+      border-color: var(--primary);
     }
   </style>
 </head>
 <body>
 <div class="game-wrapper">
-  <!-- HUD -->
+  <!-- HUD BAR -->
   <div class="hud">
-    <span id="hud-round">เควสต์ 1/10</span>
+    <span class="hud-gem-badge" id="hud-gem-info">💎 ด่าน 1</span>
+    <span id="hud-round-num">ข้อ 1/10</span>
     <span id="hud-streak" class="hud-streak">🔥 x2 คอมโบ!</span>
-    <span id="hud-lion-points" class="hud-badge">🦁 0 แต้ม</span>
+    <span id="hud-lion-points" class="hud-points">🦁 0 แต้ม</span>
   </div>
 
-  <!-- CANVAS BATTLE (Prodigy Style) -->
-  <canvas id="gameCanvas" width="500" height="260"></canvas>
+  <!-- CANVAS BATTLE (Prodigy Style Animation) -->
+  <canvas id="gameCanvas" width="500" height="250"></canvas>
 
   <!-- DRAGONBOX TACTILE PUZZLE PANEL -->
   <div class="interactive-panel" id="panel-gameplay">
@@ -251,68 +280,99 @@
     <div class="tactile-cards-grid" id="cards-grid"></div>
   </div>
 
-  <!-- START OVERLAY -->
+  <!-- START OVERLAY (SELECT FROM 4 GEMS) -->
   <div class="overlay-screen" id="overlay-start" style="display: flex;">
     <div class="overlay-card">
-      <div style="font-size: 4.5rem; margin-bottom: 8px;">🦁</div>
-      <h2 style="font-size: 1.8rem; font-weight: 800; color: #EA580C; margin-bottom: 4px;">Leo's Math Quest</h2>
-      <p style="font-size: 0.95rem; color: #64748B; font-weight: 700; margin-bottom: 16px;">
-        กอบกู้อัญมณีตรรกะแห่งอาณาจักร (Cambridge & IGCSE Junior)
+      <div style="font-size: 3.8rem; margin-bottom: 4px;">🦁</div>
+      <h2 style="font-size: 1.6rem; font-weight: 900; color: #EA580C; margin-bottom: 2px;">Leo's Math Quest</h2>
+      <p style="font-size: 0.88rem; color: #64748B; font-weight: 700; margin-bottom: 14px;">
+        ศึกตามล่า 4 อัญมณีตรรกะ (ด่านละ 10 ข้อ พักสายตาทุกข้อ)
       </p>
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn-action" style="background:#38BDF8; box-shadow:0 5px 0 #0284C7;" onclick="chooseGrade(1)">
-          🍎 ป.1 : ป่าผลไม้ (บวก-ลบ มีรูปธรรม)
-        </button>
-        <button class="btn-action" style="background:#34D399; box-shadow:0 5px 0 #059669;" onclick="chooseGrade(2)">
-          💎 ป.2 : เหมืองผลึก (คูณแม่ 2-10 ทอนเงิน)
-        </button>
-        <button class="btn-action" style="background:#A855F7; box-shadow:0 5px 0 #7E22CE;" onclick="chooseGrade(3)">
-          🏰 ป.3 : ปราสาทตรรกะ (หาร เศษส่วน พื้นที่)
-        </button>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div class="gem-card" onclick="selectWorld(1)">
+          <span style="font-size: 2rem;">🔴</span>
+          <div>
+            <div style="font-weight: 800; color: #DC2626; font-size: 1rem;">ด่านที่ 1: ทับทิมแห่งการรวม (Ruby)</div>
+            <div style="font-size: 0.8rem; color: #64748B;">บวกเลขและจำนวนรูปธรรม (10 ข้อ)</div>
+          </div>
+        </div>
+
+        <div class="gem-card" onclick="selectWorld(2)">
+          <span style="font-size: 2rem;">🔵</span>
+          <div>
+            <div style="font-weight: 800; color: #0284C7; font-size: 1rem;">ด่านที่ 2: ไพลินแห่งการหาค่า (Sapphire)</div>
+            <div style="font-size: 0.8rem; color: #64748B;">ลบเลขและสมดุลตัวไม่ทราบค่า (10 ข้อ)</div>
+          </div>
+        </div>
+
+        <div class="gem-card" onclick="selectWorld(3)">
+          <span style="font-size: 2rem;">🟢</span>
+          <div>
+            <div style="font-weight: 800; color: #059669; font-size: 1rem;">ด่านที่ 3: มรกตแห่งการทวีคูณ (Emerald)</div>
+            <div style="font-size: 0.8rem; color: #64748B;">สูตรคูณและการแบ่งกลุ่มเท่ากัน (10 ข้อ)</div>
+          </div>
+        </div>
+
+        <div class="gem-card" onclick="selectWorld(4)">
+          <span style="font-size: 2rem;">🟣</span>
+          <div>
+            <div style="font-weight: 800; color: #7C3AED; font-size: 1rem;">ด่านที่ 4: เพชรตรรกะธุรกิจ (Amethyst)</div>
+            <div style="font-size: 0.8rem; color: #64748B;">กำไร-ต้นทุนและโจทย์ปัญหา 2 ชั้น (10 ข้อ)</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- MATHTANGO INTERLEAVED ISLAND REWARD -->
+  <!-- MATHTANGO INTERLEAVED ISLAND REWARD (AFTER EVERY QUESTION) -->
   <div class="overlay-screen" id="overlay-island">
     <div class="overlay-card" style="background: linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%); border: 4px solid #34D399;">
-      <div style="font-size: 1.4rem; font-weight: 900; color: #B45309;" id="doubloon-text">✨ +25 เหรียญทองคำ!</div>
-      <h3 style="font-size: 1.3rem; font-weight: 800; color: #065F46; margin: 4px 0;">เกาะลีโอกำลังฟื้นฟู!</h3>
-      <div style="background: #A7F3D0; border: 3px solid #059669; border-radius: 16px; padding: 20px; margin: 12px 0; cursor: pointer;" onclick="tapIslandEgg()">
-        <div id="island-egg-emoji" style="font-size: 4.5rem; transition: transform 0.15s;">🥚</div>
-        <p id="island-egg-prompt" style="font-size: 1rem; font-weight: 800; color: #065F46; margin-top: 6px;">👆 แตะไข่ 3 ครั้งเพื่อช่วยฟักมอนสเตอร์!</p>
+      <div style="font-size: 1.3rem; font-weight: 900; color: #B45309;" id="doubloon-text">✨ +25 เหรียญทองคำ!</div>
+      <h3 style="font-size: 1.2rem; font-weight: 800; color: #065F46; margin: 4px 0;" id="island-gem-title">เกาะลีโอกำลังฟื้นฟู!</h3>
+      <div style="background: #A7F3D0; border: 3px solid #059669; border-radius: 16px; padding: 16px; margin: 10px 0; cursor: pointer;" onclick="tapIslandEgg()">
+        <div id="island-egg-emoji" style="font-size: 4.2rem; transition: transform 0.15s;">🥚</div>
+        <p id="island-egg-prompt" style="font-size: 0.95rem; font-weight: 800; color: #065F46; margin-top: 6px;">👆 แตะไข่ 3 ครั้งเพื่อช่วยฟักมอนสเตอร์!</p>
       </div>
-      <button class="btn-action" style="background:#10B981; box-shadow:0 5px 0 #047857;" onclick="nextQuestFromIsland()">
-        ลุยเควสต์ต่อไป ➔
+      <button class="btn-action" style="background:#10B981; box-shadow:0 5px 0 #047857;" onclick="nextQuestionFromIsland()">
+        ลุยข้อต่อไป ➔
       </button>
     </div>
   </div>
 
-  <!-- VICTORY & LINE OVERLAY -->
+  <!-- VICTORY & LINE VOUCHER OVERLAY -->
   <div class="overlay-screen" id="overlay-victory">
     <div class="overlay-card">
-      <div style="font-size: 4rem;">🏆</div>
-      <h2 style="font-size: 1.6rem; font-weight: 900; color: #EA580C;">ภารกิจกอบกู้อัญมณีสำเร็จ!</h2>
-      <div style="font-size: 2.5rem; color: #F59E0B; margin: 6px 0;">★★★</div>
-      <div style="background: #FEF3C7; border: 3px dashed #F59E0B; border-radius: 16px; padding: 12px; margin: 12px 0;">
-        <div style="font-size: 0.9rem; font-weight: 800; color: #92400E;">🎟️ คูปองส่วนลดค่าเรียน (10% Cap)</div>
-        <div style="font-size: 1.5rem; font-weight: 900; color: #B45309; background: white; border-radius: 10px; padding: 4px;" id="voucher-code">LEO-500-XXXX</div>
+      <div style="font-size: 3.5rem;">🏆</div>
+      <h2 style="font-size: 1.5rem; font-weight: 900; color: #EA580C;" id="victory-gem-name">กอบกู้อัญมณีสำเร็จ!</h2>
+      <div style="font-size: 2.2rem; color: #F59E0B; margin: 4px 0;">★★★</div>
+      
+      <div style="background: #FEF3C7; border: 3px dashed #F59E0B; border-radius: 16px; padding: 12px; margin: 10px 0;">
+        <div style="font-size: 0.85rem; font-weight: 800; color: #92400E;">🎟️ คูปองส่วนลดค่าเรียนสถาบัน IGCSE (Cap 10%)</div>
+        <div style="font-size: 1.4rem; font-weight: 900; color: #B45309; background: white; border-radius: 10px; padding: 4px;" id="voucher-code">LEO-500-XXXX</div>
         <div style="font-size: 1.1rem; font-weight: 900; color: #B45309; margin-top: 4px;">มูลค่าส่วนลด 500 บาท</div>
       </div>
+
       <button class="btn-action" style="background:#06C755; box-shadow:0 5px 0 #04953F; margin-bottom: 8px;" onclick="sendLineVoucher()">
         📲 ส่งเข้า LINE เพื่อรับส่วนลด 500 บ. & นัดทดลองเรียนฟรี
       </button>
+
       <button class="btn-action" style="background:#64748B; box-shadow:0 5px 0 #475569;" onclick="restartAll()">
-        🔄 เล่นอีกครั้ง
+        🗺️ เลือกด่านอัญมณีอื่น
       </button>
     </div>
   </div>
 </div>
 
 <script>
+// -------------------------------------------------------------
+// 1. WEB AUDIO API SYNTHESIZER (No external files)
+// -------------------------------------------------------------
 const Sfx = {
   ctx: null,
-  init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+  init() {
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  },
   play(freq, type, dur, gain=0.15) {
     try {
       this.init();
@@ -340,21 +400,30 @@ const Sfx = {
   eggTap() { this.play(900, 'sine', 0.08, 0.2); }
 };
 
+// -------------------------------------------------------------
+// 2. CANVAS ANIMATION (Prodigy Battle Scene)
+// -------------------------------------------------------------
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+const gemConfig = {
+  1: { name: "ทับทิมแห่งการรวม (Ruby)", icon: "🔴", themeColor: "#DC2626", monsterEye: "#EF4444" },
+  2: { name: "ไพลินแห่งการหาค่า (Sapphire)", icon: "🔵", themeColor: "#0284C7", monsterEye: "#38BDF8" },
+  3: { name: "มรกตแห่งการทวีคูณ (Emerald)", icon: "🟢", themeColor: "#059669", monsterEye: "#34D399" },
+  4: { name: "เพชรตรรกะธุรกิจ (Amethyst)", icon: "🟣", themeColor: "#7C3AED", monsterEye: "#C084FC" }
+};
+
 let gameState = {
-  grade: 1,
+  world: 1,
   qIndex: 0,
   totalQ: 10,
   score: 0,
   lionPoints: 0,
   streak: 0,
-  difficulty: 2,
   currentQ: null,
   answered: false,
-  leo: { x: 90, y: 180, frame: 0 },
-  monster: { x: 410, y: 180, maxHp: 100, hp: 100, hurt: false, eyeColor: '#A855F7' },
+  leo: { x: 85, y: 175, frame: 0 },
+  monster: { x: 415, y: 175, maxHp: 100, hp: 100, hurt: false },
   particles: [],
   projectiles: [],
   islandTaps: 0
@@ -386,11 +455,11 @@ function drawSkyAndLandscape() {
   ctx.fill();
 
   ctx.fillStyle = '#15803D';
-  ctx.fillRect(0, 210, canvas.width, 50);
+  ctx.fillRect(0, 205, canvas.width, 45);
 
   ctx.fillStyle = '#22C55E';
   ctx.beginPath();
-  ctx.ellipse(canvas.width / 2, 210, 260, 20, 0, 0, Math.PI * 2);
+  ctx.ellipse(canvas.width / 2, 205, 260, 18, 0, 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -402,47 +471,47 @@ function drawCaptainLeo() {
 
   ctx.fillStyle = '#EA580C';
   ctx.beginPath();
-  ctx.arc(x, y, 40, 0, Math.PI * 2);
+  ctx.arc(x, y, 38, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#FDBA74';
   ctx.beginPath();
-  ctx.arc(x, y, 28, 0, Math.PI * 2);
+  ctx.arc(x, y, 26, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#EA580C';
   ctx.beginPath();
-  ctx.arc(x - 22, y - 24, 11, 0, Math.PI * 2);
-  ctx.arc(x + 22, y - 24, 11, 0, Math.PI * 2);
+  ctx.arc(x - 20, y - 22, 11, 0, Math.PI * 2);
+  ctx.arc(x + 20, y - 22, 11, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#1E293B';
   ctx.beginPath();
-  ctx.arc(x - 10, y - 4, 4, 0, Math.PI * 2);
-  ctx.arc(x + 10, y - 4, 4, 0, Math.PI * 2);
+  ctx.arc(x - 9, y - 4, 3.5, 0, Math.PI * 2);
+  ctx.arc(x + 9, y - 4, 3.5, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#C2410C';
   ctx.beginPath();
-  ctx.moveTo(x - 6, y + 5);
-  ctx.lineTo(x + 6, y + 5);
-  ctx.lineTo(x, y + 12);
+  ctx.moveTo(x - 5, y + 5);
+  ctx.lineTo(x + 5, y + 5);
+  ctx.lineTo(x, y + 11);
   ctx.fill();
 
   ctx.fillStyle = '#6366F1';
   ctx.beginPath();
-  ctx.moveTo(x - 20, y - 18);
-  ctx.lineTo(x + 20, y - 18);
-  ctx.lineTo(x, y - 58);
+  ctx.moveTo(x - 18, y - 16);
+  ctx.lineTo(x + 18, y - 16);
+  ctx.lineTo(x, y - 56);
   ctx.closePath();
   ctx.fill();
   ctx.fillStyle = '#FBBF24';
-  ctx.fillRect(x - 24, y - 22, 48, 5);
+  ctx.fillRect(x - 22, y - 20, 44, 5);
 
   ctx.fillStyle = 'rgba(0,0,0,0.4)';
-  ctx.fillRect(x - 35, y + 38, 70, 7);
+  ctx.fillRect(x - 35, y + 36, 70, 7);
   ctx.fillStyle = '#22C55E';
-  ctx.fillRect(x - 35, y + 38, 70, 7);
+  ctx.fillRect(x - 35, y + 36, 70, 7);
 }
 
 function drawMonster() {
@@ -453,26 +522,27 @@ function drawMonster() {
 
   ctx.fillStyle = m.hurt ? '#EF4444' : '#475569';
   ctx.beginPath();
-  ctx.ellipse(x, y + 6, 38, 32, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 6, 36, 30, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = m.eyeColor;
+  const currentGem = gemConfig[gameState.world] || gemConfig;
+  ctx.fillStyle = currentGem.monsterEye;
   ctx.beginPath();
-  ctx.arc(x - 13, y - 2, 7, 0, Math.PI * 2);
-  ctx.arc(x + 13, y - 2, 7, 0, Math.PI * 2);
+  ctx.arc(x - 12, y - 2, 6.5, 0, Math.PI * 2);
+  ctx.arc(x + 12, y - 2, 6.5, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = '#FFFFFF';
   ctx.beginPath();
-  ctx.arc(x - 13, y - 2, 2.5, 0, Math.PI * 2);
-  ctx.arc(x + 13, y - 2, 2.5, 0, Math.PI * 2);
+  ctx.arc(x - 12, y - 2, 2.5, 0, Math.PI * 2);
+  ctx.arc(x + 12, y - 2, 2.5, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.fillRect(x - 40, y - 50, 80, 8);
+  ctx.fillRect(x - 40, y - 48, 80, 8);
   const hpPct = Math.max(0, m.hp / m.maxHp);
   ctx.fillStyle = hpPct > 0.5 ? '#E11D48' : '#F59E0B';
-  ctx.fillRect(x - 40, y - 50, 80 * hpPct, 8);
+  ctx.fillRect(x - 40, y - 48, 80 * hpPct, 8);
 }
 
 function updateProjectiles() {
@@ -483,7 +553,7 @@ function updateProjectiles() {
 
     ctx.fillStyle = '#F59E0B';
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
     ctx.fill();
 
     if (p.x >= gameState.monster.x - 20) {
@@ -503,7 +573,7 @@ function updateParticles() {
       gameState.particles.splice(i, 1);
       continue;
     }
-    ctx.fillStyle = `rgba(${pt.color},${pt.alpha})`;
+    ctx.fillStyle = `rgba(${pt.color}, ${pt.alpha})`;
     ctx.beginPath();
     ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
     ctx.fill();
@@ -530,38 +600,73 @@ function triggerMonsterHit() {
   }
 }
 
-const questionsBank = {
+// -------------------------------------------------------------
+// 3. 4 WORLDS / 4 GEMS DATABASE (EXACTLY 10 QUESTIONS PER WORLD)
+// -------------------------------------------------------------
+const allWorldsData = {
   1: },
     { left: 8, op: "+", right: 15, ans: 7, options: },
-    { left: 12, op: "-", right: 7, ans: 5, options: },
-    { left: 6, op: "+", right: 16, ans: 10, options: },
-    { left: 14, op: "-", right: 8, ans: 6, options: }
+    { left: 6, op: "+", right: 11, ans: 5, options: },
+    { left: 9, op: "+", right: 17, ans: 8, options: },
+    { left: 7, op: "+", right: 13, ans: 6, options: },
+    { left: 12, op: "+", right: 20, ans: 8, options: },
+    { left: 15, op: "+", right: 25, ans: 10, options: },
+    { left: 20, op: "+", right: 50, ans: 30, options: [20, 25, 30, 35] },
+    { left: 24, op: "+", right: 30, ans: 6, options: },
+    { left: 35, op: "+", right: 50, ans: 15, options: }
   ],
   2: },
-    { left: 45, op: "+", right: 70, ans: 25, options: [20, 25, 30, 35] },
-    { left: 5, op: "×", right: 40, ans: 8, options: },
+    { left: 18, op: "-", right: 10, ans: 8, options: },
+    { left: 25, op: "-", right: 16, ans: 9, options: },
+    { left: 40, op: "-", right: 25, ans: 15, options: },
+    { left: 50, op: "-", right: 32, ans: 18, options: [16, 17, 18, 19] },
+    { left: 75, op: "-", right: 50, ans: 25, options: [20, 25, 30, 35] },
     { left: 100, op: "-", right: 65, ans: 35, options: [30, 35, 40, 45] },
-    { left: 4, op: "×", right: 32, ans: 8, options: }
+    { left: 120, op: "-", right: 80, ans: 40, options: [30, 40, 50, 60] },
+    { left: 150, op: "-", right: 90, ans: 60, options: [50, 60, 70, 80] },
+    { left: 200, op: "-", right: 125, ans: 75, options: [65, 70, 75, 80] }
   ],
   3: },
-    { left: 120, op: "+", right: 200, ans: 80, options: [60, 70, 80, 90] },
+    { left: 3, op: "×", right: 18, ans: 6, options: },
+    { left: 4, op: "×", right: 28, ans: 7, options: },
+    { left: 5, op: "×", right: 40, ans: 8, options: },
+    { left: 6, op: "×", right: 36, ans: 6, options: },
+    { left: 7, op: "×", right: 42, ans: 6, options: },
+    { left: 8, op: "×", right: 56, ans: 7, options: },
+    { left: 9, op: "×", right: 72, ans: 8, options: },
+    { left: 10, op: "×", right: 90, ans: 9, options: },
+    { left: 12, op: "×", right: 48, ans: 4, options: }
+  ],
+  4: },
     { left: 72, op: "÷", right: 8, ans: 9, options: },
+    { left: 100, op: "+", right: 180, ans: 80, options: [60, 70, 80, 90] },
+    { left: 150, op: "+", right: 270, ans: 120, options: [100, 110, 120, 130] },
+    { left: 240, op: "÷", right: 4, ans: 60, options: [50, 60, 70, 80] },
+    { left: 350, op: "-", right: 200, ans: 150, options: [120, 130, 140, 150] },
     { left: 15, op: "×", right: 60, ans: 4, options: },
-    { left: 250, op: "-", right: 180, ans: 70, options: [60, 70, 80, 90] }
+    { left: 400, op: "+", right: 650, ans: 250, options: [200, 220, 250, 270] },
+    { left: 500, op: "-", right: 380, ans: 120, options: [100, 110, 120, 130] },
+    { left: 81, op: "÷", right: 9, ans: 9, options: }
   ]
 };
 
-function chooseGrade(g) {
-  gameState.grade = g;
+// -------------------------------------------------------------
+// 4. GAMEPLAY CONTROLLERS
+// -------------------------------------------------------------
+function selectWorld(w) {
+  gameState.world = w;
   gameState.qIndex = 0;
   gameState.score = 0;
   gameState.lionPoints = 0;
   gameState.streak = 0;
   document.getElementById('overlay-start').style.display = 'none';
-  loadNextPuzzle();
+
+  const g = gemConfig[w];
+  document.getElementById('hud-gem-info').innerText = `${g.icon} ${g.name.split(' ')[0]}`;
+  loadQuestion();
 }
 
-function loadNextPuzzle() {
+function loadQuestion() {
   if (gameState.qIndex >= gameState.totalQ) {
     showVictoryScreen();
     return;
@@ -569,15 +674,15 @@ function loadNextPuzzle() {
   gameState.qIndex++;
   gameState.answered = false;
 
-  document.getElementById('hud-round').innerText = `เควสต์ ${gameState.qIndex}/${gameState.totalQ}`;
+  document.getElementById('hud-round-num').innerText = `ข้อ ${gameState.qIndex}/10`;
   document.getElementById('target-slot').innerText = "?";
   document.getElementById('target-slot').classList.remove('filled');
   document.getElementById('feedback-banner').innerText = "";
 
   gameState.monster.hp = 100;
 
-  const list = questionsBank[gameState.grade];
-  const q = list[(gameState.qIndex - 1) % list.length];
+  const currentList = allWorldsData[gameState.world];
+  const q = currentList[gameState.qIndex - 1];
   gameState.currentQ = q;
 
   document.getElementById('eq-left').innerText = q.left;
@@ -590,12 +695,12 @@ function loadNextPuzzle() {
     const card = document.createElement('div');
     card.className = 'tactile-card';
     card.innerHTML = `<span>${val}</span><div class="dots">${'<div class="dot"></div>'.repeat(Math.min(val, 6))}</div>`;
-    card.onclick = () => selectTactileCard(val, card);
+    card.onclick = () => onCardClicked(val);
     grid.appendChild(card);
   });
 }
 
-function selectTactileCard(val, cardEl) {
+function onCardClicked(val) {
   if (gameState.answered) return;
   gameState.answered = true;
 
@@ -627,7 +732,8 @@ function selectTactileCard(val, cardEl) {
       vy: 0
     });
 
-    setTimeout(showIslandScene, 1200);
+    // INTERLEAVED: Switch to MathTango Island Scene after EVERY question!
+    setTimeout(openIslandScene, 1100);
 
   } else {
     Sfx.wrong();
@@ -639,19 +745,27 @@ function selectTactileCard(val, cardEl) {
       gameState.answered = false;
       slot.innerText = "?";
       slot.classList.remove('filled');
-    }, 1400);
+    }, 1300);
   }
 }
 
-const islandCreatures = ['🐣', '🐥', '🦕', '🦄', '🐲'];
+// -------------------------------------------------------------
+// 5. MATHTANGO ISLAND INTERLEAVED REWARD (EVERY QUESTION)
+// -------------------------------------------------------------
+const islandCreatures = ['🐣', '🐥', '🦕', '🦄', '🐲', '🦁', '🦉', '🦊', '🐢', '👑'];
 
-function showIslandScene() {
+function openIslandScene() {
   gameState.islandTaps = 0;
   const modal = document.getElementById('overlay-island');
   const egg = document.getElementById('island-egg-emoji');
   const prompt = document.getElementById('island-egg-prompt');
+  const title = document.getElementById('island-gem-title');
+
+  const g = gemConfig[gameState.world];
+  title.innerText = `เกาะ${g.name.split(' ')[0]}กำลังฟื้นฟู! (พลังข้อที่ ${gameState.qIndex}/10)`;
 
   egg.innerText = '🥚';
+  egg.style.transform = 'scale(1)';
   prompt.innerText = '👆 แตะไข่ 3 ครั้งเพื่อช่วยฟักมอนสเตอร์!';
   modal.style.display = 'flex';
 }
@@ -660,30 +774,39 @@ function tapIslandEgg() {
   gameState.islandTaps++;
   Sfx.eggTap();
   const egg = document.getElementById('island-egg-emoji');
-  egg.style.transform = `scale(${1 + gameState.islandTaps * 0.1}) rotate(${gameState.islandTaps % 2 === 0 ? 10 : -10}deg)`;
+  egg.style.transform = `scale(${1 + gameState.islandTaps * 0.12}) rotate(${gameState.islandTaps % 2 === 0 ? 12 : -12}deg)`;
 
   if (gameState.islandTaps >= 3) {
     const c = islandCreatures[(gameState.qIndex - 1) % islandCreatures.length];
     egg.innerText = c;
-    egg.style.transform = 'scale(1.3)';
-    document.getElementById('island-egg-prompt').innerText = `🎉 ฟักตัวสำเร็จ! น้องมอนสเตอร์ร่วมเดินทางแล้ว!`;
+    egg.style.transform = 'scale(1.35)';
+    document.getElementById('island-egg-prompt').innerText = `🎉 ฟักตัวสำเร็จ! น้องมอนสเตอร์ร่วมยินดีแล้ว!`;
   }
 }
 
-function nextQuestFromIsland() {
+function nextQuestionFromIsland() {
   document.getElementById('overlay-island').style.display = 'none';
-  loadNextPuzzle();
+  loadQuestion();
 }
 
+// -------------------------------------------------------------
+// 6. VICTORY & LINE VOUCHER INTEGRATION
+// -------------------------------------------------------------
 function showVictoryScreen() {
-  const code = `LEO-500-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-  document.getElementById('voucher-code').innerText = code;
+  const g = gemConfig[gameState.world];
+  document.getElementById('victory-gem-name').innerText = `กอบกู้ ${g.name} สำเร็จ!`;
+
+  const randStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const voucherCode = `LEO-500-${randStr}`;
+  document.getElementById('voucher-code').innerText = voucherCode;
+
   document.getElementById('overlay-victory').style.display = 'flex';
 }
 
 function sendLineVoucher() {
   const code = document.getElementById('voucher-code').innerText;
-  const msg = `สวัสดีค่ะ นำรหัสคูปอง [${code}] จากเกม Leo's Math Quest (คะแนน ${gameState.score} แต้ม) มาขอใช้สิทธิ์ส่วนลดค่าเรียน 500 บาท และนัดหมายตรวจวัดระดับความพร้อม IGCSE ฟรีค่ะ`;
+  const g = gemConfig[gameState.world];
+  const msg = `สวัสดีค่ะ นำรหัสคูปอง [${code}] จากการพิชิต ${g.name} ในเกม Leo's Math Quest (คะแนนสะสม ${gameState.score} แต้ม) มาขอใช้สิทธิ์ส่วนลดค่าเรียน 500 บาท และนัดหมายตรวจวัดระดับความพร้อม IGCSE ฟรีค่ะ`;
   window.open(`https://line.me/R/msg/text/?${encodeURIComponent(msg)}`, '_blank');
 }
 
@@ -692,6 +815,15 @@ function restartAll() {
   document.getElementById('overlay-start').style.display = 'flex';
 }
 
+window.selectWorld = selectWorld;
+window.onCardClicked = onCardClicked;
+window.tapIslandEgg = tapIslandEgg;
+window.nextQuestionFromIsland = nextQuestionFromIsland;
+window.sendLineVoucher = sendLineVoucher;
+window.restartAll = restartAll;
+window.gameState = gameState;
+
+// Start Game Engine
 animate();
 </script>
 </body>
