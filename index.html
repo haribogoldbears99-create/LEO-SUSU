@@ -1,776 +1,1813 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Leo Math Quest — Final Design Documentation</title>
-<meta name="description" content="Leo Math Quest — เกมคณิตศาสตร์ตามหลักสูตร Cambridge Primary IGCSE พร้อมกลไก DragonBox, Prodigy Battle, MathTango Eye-Rest Island และรายงานผู้ปกครองผ่าน LINE" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leo's Math Quest — ศึก 4 อัญมณีตรรกะ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700;800&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
 <style>
-/* ============ TOKENS ============ */
 :root{
-  --bg:#0a0918;
-  --card:rgba(255,255,255,.055);
-  --card-hi:rgba(255,255,255,.09);
-  --line:rgba(255,255,255,.13);
+  --bg:#070b18;
+  --panel:rgba(255,255,255,.06);
+  --panel2:rgba(255,255,255,.10);
+  --line:rgba(255,255,255,.14);
   --text:#eceaff;
-  --muted:#a6a3cd;
+  --muted:#9d9ac4;
   --gold:#ffcf5c;
   --ruby:#ff4d6d;
   --sapphire:#4d8bff;
   --emerald:#2ee6a8;
   --amethyst:#b06bff;
-  --radius:20px;
-  --maxw:1140px;
-  --shadow:0 18px 50px -20px rgba(0,0,0,.85);
+  --ok:#2ee6a8;
+  --bad:#ff4d6d;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth; scroll-padding-top:90px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
 body{
-  margin:0;
-  font-family:'Noto Sans Thai',system-ui,-apple-system,'Segoe UI',sans-serif;
-  color:var(--text);
-  line-height:1.7;
+  font-family:'Noto Sans Thai',system-ui,-apple-system,sans-serif;
   background:
-    radial-gradient(1100px 620px at 8% -12%, #2b1b60 0%, transparent 60%),
-    radial-gradient(900px 520px at 92% -4%, #0d3a6b 0%, transparent 55%),
-    radial-gradient(800px 700px at 50% 110%, #1a0f3d 0%, transparent 60%),
+    radial-gradient(900px 500px at 10% -10%, #2b1b60 0%, transparent 60%),
+    radial-gradient(800px 500px at 95% 0%, #0d3a6b 0%, transparent 55%),
     var(--bg);
   background-attachment:fixed;
-  -webkit-font-smoothing:antialiased;
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
 }
-img{max-width:100%}
-a{color:inherit;text-decoration:none}
-.wrap{width:min(100% - 40px, var(--maxw)); margin-inline:auto}
-section{padding:72px 0}
-h1,h2,h3,h4{font-family:'Baloo 2','Noto Sans Thai',sans-serif; line-height:1.25; margin:0}
+h1,h2,h3,h4{font-family:'Baloo 2','Noto Sans Thai',sans-serif;margin:0;line-height:1.25}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.wrap{width:min(100% - 28px, 1080px);margin-inline:auto}
 
-/* ============ NAV ============ */
-.nav{
-  position:sticky; top:0; z-index:100;
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  background:rgba(10,9,24,.72);
-  border-bottom:1px solid var(--line);
-}
-.nav-in{display:flex; align-items:center; gap:18px; height:66px}
-.brand{display:flex; align-items:center; gap:10px; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.15rem; letter-spacing:.2px}
-.brand .logo{
-  width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:18px;
-  background:linear-gradient(135deg,var(--amethyst),var(--sapphire));
-  box-shadow:0 6px 18px -6px var(--amethyst);
-}
-.nav-links{display:flex; gap:6px; margin-left:auto; flex-wrap:wrap}
-.nav-links a{
-  padding:8px 14px;border-radius:999px;font-size:.9rem;font-weight:600;color:var(--muted);
-  transition:.22s; border:1px solid transparent;
-}
-.nav-links a:hover{color:#fff;background:var(--card-hi);border-color:var(--line)}
-@media(max-width:720px){ .nav-links{display:none} }
+/* ---------- SCREENS ---------- */
+.screen{display:none;padding:18px 0 40px;min-height:100vh}
+.screen.active{display:block;animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-/* ============ HERO ============ */
-.hero{padding:86px 0 60px; text-align:center; position:relative; overflow:hidden}
-.hero::before{
-  content:"";position:absolute;inset:-40% 10% auto;height:520px;
-  background:radial-gradient(closest-side, rgba(176,107,255,.28), transparent 70%);
-  filter:blur(20px);pointer-events:none;
-}
-.eyebrow{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:7px 16px;border-radius:999px;font-size:.82rem;font-weight:700;letter-spacing:.6px;
-  background:var(--card);border:1px solid var(--line);color:var(--gold);
-  text-transform:uppercase;position:relative;
-}
-.hero h1{
-  font-size:clamp(2.2rem,6vw,4rem); margin:22px 0 10px; position:relative;
-  background:linear-gradient(100deg,#fff 10%,var(--gold) 45%,var(--amethyst) 80%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 8px 30px rgba(176,107,255,.35));
-}
-.hero p.lead{max-width:760px;margin:0 auto;color:var(--muted);font-size:1.05rem;position:relative}
-.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px;position:relative}
+/* ---------- BUTTONS ---------- */
 .btn{
-  display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:999px;
-  font-weight:700;font-size:.95rem;cursor:pointer;border:1px solid transparent;transition:.24s;
-  font-family:inherit;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 22px;border-radius:999px;font-weight:700;font-size:.92rem;
+  transition:.2s;border:1px solid transparent;white-space:nowrap;
 }
-.btn-primary{
-  background:linear-gradient(120deg,var(--amethyst),var(--sapphire));color:#fff;
-  box-shadow:0 14px 34px -14px var(--amethyst);
-}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 20px 40px -14px var(--amethyst)}
-.btn-ghost{background:var(--card);border-color:var(--line);color:var(--text)}
-.btn-ghost:hover{background:var(--card-hi);transform:translateY(-2px)}
-.stats{display:flex;gap:34px;justify-content:center;flex-wrap:wrap;margin-top:44px;position:relative}
-.stat b{display:block;font-family:'Baloo 2',sans-serif;font-size:1.9rem;color:var(--gold);line-height:1.1}
-.stat span{font-size:.8rem;color:var(--muted);letter-spacing:.5px}
+.btn:active{transform:scale(.96)}
+.btn-p{background:linear-gradient(120deg,var(--amethyst),var(--sapphire));color:#fff;box-shadow:0 12px 28px -12px var(--amethyst)}
+.btn-g{background:var(--panel);border-color:var(--line);color:var(--text)}
+.btn-g:hover{background:var(--panel2)}
+.btn-gold{background:linear-gradient(120deg,#ffb347,var(--gold));color:#3a2400;box-shadow:0 12px 28px -12px var(--gold)}
+.btn:disabled{opacity:.45;pointer-events:none}
 
-/* ============ SECTION HEADS ============ */
-.sec-head{max-width:760px;margin-bottom:38px}
-.sec-head .kicker{
-  font-size:.8rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);
-  display:block;margin-bottom:10px;
+/* ---------- TITLE ---------- */
+.title-head{text-align:center;padding:34px 0 26px}
+.title-head .badge{
+  display:inline-block;padding:6px 16px;border-radius:999px;font-size:.75rem;font-weight:800;
+  letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);
+  background:rgba(255,207,92,.1);border:1px solid rgba(255,207,92,.35);
 }
-.sec-head h2{font-size:clamp(1.6rem,3.6vw,2.3rem)}
-.sec-head p{color:var(--muted);margin:10px 0 0}
+.title-head h1{
+  font-size:clamp(2rem,7vw,3.4rem);margin:16px 0 8px;
+  background:linear-gradient(100deg,#fff 5%,var(--gold) 45%,var(--amethyst) 85%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 6px 24px rgba(176,107,255,.4));
+}
+.title-head p{color:var(--muted);margin:0;font-size:.95rem}
+.leo-hero{font-size:56px;line-height:1;margin-bottom:6px;animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
-/* ============ CARDS / MECHANICS ============ */
-.grid{display:grid;gap:18px}
-.grid-4{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.grid-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.card{
-  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
-  padding:26px 24px; transition:.28s; position:relative; overflow:hidden;
+/* ---------- WORLD CARDS ---------- */
+.world-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:22px}
+.wcard{
+  position:relative;overflow:hidden;text-align:left;padding:22px 20px;border-radius:20px;
+  background:var(--panel);border:1px solid var(--line);transition:.25s;
 }
-.card:hover{transform:translateY(-4px);background:var(--card-hi);border-color:rgba(255,255,255,.24)}
-.card .ic{
-  width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;
-  margin-bottom:14px; background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
-  border:1px solid var(--line);
+.wcard:hover{background:var(--panel2);transform:translateY(-4px);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+.wcard::after{
+  content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;
+  background:var(--c);opacity:.16;filter:blur(30px);pointer-events:none;
 }
-.card h3{font-size:1.08rem;margin-bottom:8px}
-.card p{margin:0;color:var(--muted);font-size:.92rem}
-.card .glow{position:absolute;inset:auto -30% -60% auto;width:180px;height:180px;border-radius:50%;filter:blur(50px);opacity:.35}
-
-/* ============ WORLDS ============ */
-.world{
-  border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
-  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-  margin-bottom:16px; transition:.28s;
+.wcard .gem{
+  width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px;
+  background:color-mix(in srgb,var(--c) 22%,transparent);
+  border:1px solid color-mix(in srgb,var(--c) 55%,transparent);
+  box-shadow:0 0 26px -8px var(--c);margin-bottom:12px;
 }
-.world:hover{border-color:rgba(255,255,255,.26)}
-.world-head{
-  width:100%; display:flex; align-items:center; gap:16px; padding:18px 22px;
-  background:none; border:0; color:inherit; cursor:pointer; text-align:left; font-family:inherit;
-}
-.world-head:focus-visible{outline:2px solid var(--gold); outline-offset:-3px}
-.gem{
-  width:48px;height:48px;flex:0 0 48px;border-radius:15px;display:grid;place-items:center;font-size:22px;
-  background:color-mix(in srgb, var(--w) 22%, transparent);
-  border:1px solid color-mix(in srgb, var(--w) 55%, transparent);
-  box-shadow:0 0 26px -8px var(--w);
-}
-.wtitles{display:flex;flex-direction:column;min-width:0}
-.wtitles strong{font-size:1.06rem;font-family:'Baloo 2',sans-serif}
-.wtitles em{font-style:normal;font-size:.82rem;color:var(--muted)}
-.chip{
-  margin-left:auto;font-size:.76rem;font-weight:700;padding:5px 13px;border-radius:999px;
-  background:color-mix(in srgb, var(--w) 18%, transparent);
-  border:1px solid color-mix(in srgb, var(--w) 45%, transparent);
-  color:#fff;white-space:nowrap;
-}
-.caret{color:var(--muted);transition:.3s;font-size:.9rem;flex:0 0 auto}
-.world.open .caret{transform:rotate(180deg)}
-.world-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease}
-.world.open .world-body{grid-template-rows:1fr}
-.world-body > div{overflow:hidden}
-.wb-inner{padding:0 22px 24px}
-.focus{
-  font-size:.86rem;color:var(--muted);border-left:3px solid var(--w);
-  padding:8px 0 8px 14px;margin:0 0 18px;background:color-mix(in srgb, var(--w) 7%, transparent);
-  border-radius:0 10px 10px 0;
-}
-.qlist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.qlist li{
-  display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;
-  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
-  transition:.2s;
-}
-.qlist li:hover{background:rgba(255,255,255,.07);transform:translateX(3px)}
-.qnum{
-  flex:0 0 26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:.75rem;
-  font-weight:800;background:color-mix(in srgb, var(--w) 25%, transparent);
-  border:1px solid color-mix(in srgb, var(--w) 50%, transparent);
-}
-.qtext{min-width:0}
-.tag{
-  display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
-  color:var(--w);margin-bottom:3px;
-}
-.qtext p{margin:0;font-size:.9rem}
-@media(max-width:560px){
-  .world-head{padding:15px 16px;gap:12px}
-  .chip{display:none}
-  .wb-inner{padding:0 16px 20px}
+.wcard h3{font-size:1.1rem;margin-bottom:3px}
+.wcard .stg{font-size:.78rem;color:var(--c);font-weight:700;letter-spacing:.6px}
+.wcard .foc{font-size:.82rem;color:var(--muted);margin:8px 0 0}
+.wcard .go{
+  margin-top:14px;display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:800;color:var(--c);
 }
 
-/* ============ DEMO ============ */
-.demo-shell{
-  border:1px solid var(--line); border-radius:26px; padding:28px;
-  background:linear-gradient(160deg, rgba(176,107,255,.10), rgba(77,139,255,.06) 45%, rgba(255,255,255,.02));
-  box-shadow:var(--shadow);
+/* ---------- BATTLE ---------- */
+.hud{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--line);
+  margin-bottom:12px;font-size:.8rem;
 }
-.demo-top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin-bottom:22px}
-.demo-top h3{font-size:1.15rem}
-.demo-top .hint{font-size:.82rem;color:var(--muted)}
-.battle{
-  display:flex;align-items:center;justify-content:center;gap:20px;padding:16px;
-  border-radius:18px;background:rgba(0,0,0,.28);border:1px solid var(--line);margin-bottom:22px;
+.hud .pill{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);font-weight:700;white-space:nowrap;
 }
-.fighter{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:40px;line-height:1;transition:.3s}
-.fighter .name{font-family:'Noto Sans Thai';font-size:.72rem;color:var(--muted);letter-spacing:.5px}
-.vs{font-family:'Baloo 2';font-weight:800;color:var(--gold);opacity:.8;font-size:.9rem}
-.battle.win .leo{animation:powerup .9s ease}
-.battle.win .foe{animation:shatter .9s forwards}
-@keyframes powerup{
-  0%{transform:scale(1)}
-  45%{transform:scale(1.3);filter:drop-shadow(0 0 26px var(--gold))}
-  100%{transform:scale(1);filter:none}
+.hud .pill b{color:var(--gold)}
+.hud .spacer{margin-left:auto}
+.combo{
+  padding:5px 14px;border-radius:999px;font-weight:800;font-size:.8rem;
+  background:linear-gradient(120deg,#ff7a18,var(--gold));color:#3a1a00;
+  opacity:0;transform:scale(.6);transition:.25s;
 }
-@keyframes shatter{
-  0%{transform:scale(1);opacity:1}
-  30%{transform:scale(1.15) rotate(-8deg)}
-  100%{transform:scale(.15) rotate(200deg);opacity:0;filter:blur(8px)}
+.combo.on{opacity:1;transform:scale(1)}
+.combo.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.28)}100%{transform:scale(1)}}
+
+.hp-row{display:flex;gap:14px;align-items:center;margin-bottom:10px}
+.hp-side{flex:1;min-width:0}
+.hp-side .nm{font-size:.76rem;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hp-side.right .nm{text-align:right}
+.hpbar{height:14px;border-radius:99px;background:rgba(0,0,0,.45);border:1px solid var(--line);overflow:hidden}
+.hpbar i{display:block;height:100%;width:100%;border-radius:99px;transition:width .5s cubic-bezier(.3,1.4,.5,1)}
+.hpbar.leo i{background:linear-gradient(90deg,#2ee6a8,#4d8bff)}
+.hpbar.foe i{background:linear-gradient(90deg,#ff4d6d,#ff9a3c)}
+
+.canvas-box{
+  position:relative;border-radius:20px;overflow:hidden;
+  border:1px solid var(--line);background:#050814;margin-bottom:14px;
 }
+.canvas-box canvas{display:block;width:100%;height:auto}
+
+/* ---------- QUESTION PANEL ---------- */
+.qpanel{
+  border-radius:20px;border:1px solid var(--line);background:var(--panel);padding:18px;
+}
+.qhint{font-size:.82rem;color:var(--muted);margin-bottom:12px;display:flex;gap:8px;align-items:flex-start}
+.qhint .ic{font-size:1rem;line-height:1.4}
+.equation{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;
+  padding:18px 12px;border-radius:16px;background:rgba(0,0,0,.28);
+  border:1px solid var(--line);margin-bottom:16px;
+  font-family:'Baloo 2',sans-serif;font-size:clamp(1.4rem,5.2vw,2rem);font-weight:800;
+  min-height:88px;text-align:center;
+}
+.equation .num{color:#fff}
+.equation .op{color:var(--gold);opacity:.85}
+
+.slot{
+  width:clamp(66px,17vw,92px);height:clamp(66px,17vw,92px);border-radius:18px;
+  border:2.5px dashed rgba(255,255,255,.3);background:rgba(255,255,255,.05);
+  display:grid;place-items:center;transition:.2s;position:relative;
+  font-size:inherit;color:var(--muted);
+}
+.slot.hover{border-color:var(--gold);background:rgba(255,207,92,.14);transform:scale(1.06)}
+.slot.filled{border-style:solid;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.09);padding:0}
+.slot.good{border-color:var(--ok);background:rgba(46,230,168,.16);box-shadow:0 0 26px -6px var(--ok)}
+.slot.bad{border-color:var(--bad);background:rgba(255,77,109,.16);animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
 .tray{
-  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;min-height:64px;
-  padding:14px;border-radius:18px;border:1px dashed rgba(255,255,255,.18);
-  background:rgba(255,255,255,.03);margin-bottom:18px;
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:stretch;
+  min-height:96px;padding:14px;border-radius:16px;border:1px dashed rgba(255,255,255,.16);
+  background:rgba(255,255,255,.03);
 }
-.tray::before{
-  content:"ถาดดาว";position:absolute;margin-top:-34px;font-size:.72rem;letter-spacing:1px;
-  color:var(--muted);text-transform:uppercase;
-}
-.star{
-  font-size:30px;line-height:1;cursor:grab;touch-action:none;user-select:none;
-  transition:transform .15s; filter:drop-shadow(0 4px 10px rgba(255,207,92,.45));
-}
-.star:hover{transform:scale(1.15) rotate(-6deg)}
-.star.dragging{opacity:.3}
-.star.ghost{position:fixed;z-index:9999;pointer-events:none;transform:scale(1.25);cursor:grabbing}
-.boxes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.dropbox{
-  min-height:132px;border-radius:18px;border:2px dashed rgba(255,255,255,.22);
-  background:rgba(255,255,255,.035);padding:12px;display:flex;flex-direction:column;
-  align-items:center;gap:8px;transition:.22s;position:relative;
-}
-.dropbox.hover{border-color:var(--gold);background:rgba(255,207,92,.12);transform:scale(1.02)}
-.dropbox .box-label{
-  font-family:'Baloo 2';font-weight:800;font-size:1.5rem;color:var(--gold);line-height:1;
-}
-.dropbox .box-sub{font-size:.72rem;color:var(--muted)}
-.slots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;flex:1}
-.demo-status{
-  margin-top:18px;text-align:center;font-size:.92rem;font-weight:600;color:var(--muted);
-  min-height:28px;transition:.3s;
-}
-.demo-status.ok{color:var(--emerald)}
-.demo-status.err{color:var(--ruby)}
-.demo-foot{display:flex;justify-content:center;gap:12px;margin-top:8px;flex-wrap:wrap}
-.eyrest{
-  margin-top:22px;display:flex;gap:14px;align-items:center;padding:14px 18px;border-radius:16px;
-  background:linear-gradient(100deg, rgba(46,230,168,.13), rgba(46,230,168,.03));
-  border:1px solid rgba(46,230,168,.28);font-size:.88rem;
-}
-.eyrest .ic2{font-size:26px}
-.eyrest b{color:var(--emerald)}
-
-/* ============ LINE MOCK ============ */
-.line-mock{
-  border-radius:22px;overflow:hidden;border:1px solid var(--line);
-  background:#0d1220;box-shadow:var(--shadow);max-width:520px;
-}
-.line-head{
-  background:#06c755;color:#fff;padding:13px 18px;font-weight:700;font-size:.88rem;
-  display:flex;align-items:center;gap:9px;
-}
-.line-body{padding:18px;display:grid;gap:12px}
-.bubble{
-  background:#1c2437;border:1px solid rgba(255,255,255,.09);border-radius:16px 16px 16px 4px;
-  padding:14px 16px;font-size:.86rem;color:#dfe4f2;
-}
-.bubble h4{font-size:.9rem;margin-bottom:8px;color:#fff}
-.bubble ul{margin:0;padding-left:18px}
-.bubble li{margin-bottom:4px}
-.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:6px}
-.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--emerald),var(--sapphire))}
-.bubble.voucher{
-  background:linear-gradient(120deg,#2a2110,#3a2c12);border-color:rgba(255,207,92,.4);
-  border-radius:16px 16px 4px 16px;text-align:center;
-}
-.bubble.voucher .amt{font-family:'Baloo 2';font-size:1.7rem;color:var(--gold);line-height:1.2}
-.bubble.voucher code{
-  display:inline-block;margin-top:6px;padding:5px 12px;border-radius:8px;font-size:.78rem;
-  background:rgba(0,0,0,.4);letter-spacing:1.5px;color:var(--gold);
+.tray-label{
+  width:100%;text-align:center;font-size:.7rem;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:-4px;font-weight:700;
 }
 
-/* ============ REWARDS TABLE ============ */
-.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
-table{width:100%;border-collapse:collapse;min-width:560px}
-th,td{padding:16px 20px;text-align:left;font-size:.9rem;border-bottom:1px solid rgba(255,255,255,.07)}
-th{
-  font-size:.74rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--gold);
-  background:rgba(255,255,255,.04);font-weight:800;
+.ncard{
+  min-width:clamp(62px,16vw,86px);min-height:clamp(62px,16vw,86px);
+  padding:8px 10px;border-radius:16px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;
+  background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.05));
+  border:1.5px solid rgba(255,255,255,.24);
+  font-family:'Baloo 2',sans-serif;font-weight:800;
+  font-size:clamp(1.3rem,4.6vw,1.75rem);color:#fff;
+  cursor:grab;touch-action:none;user-select:none;
+  transition:transform .15s,box-shadow .2s,background .2s;
+  box-shadow:0 8px 20px -12px rgba(0,0,0,.9);
+  position:relative;
 }
-tbody tr:last-child td{border-bottom:0}
-tbody tr:hover{background:rgba(255,255,255,.035)}
-td:first-child{font-weight:700}
-.badge{
-  display:inline-block;padding:4px 12px;border-radius:999px;font-size:.76rem;font-weight:700;
-  background:rgba(255,207,92,.14);border:1px solid rgba(255,207,92,.4);color:var(--gold);
+.ncard:hover{transform:translateY(-4px) scale(1.04);background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.08));box-shadow:0 14px 26px -12px var(--amethyst)}
+.ncard:active{cursor:grabbing}
+.ncard.dragging{opacity:.28}
+.ncard.ghost{
+  position:fixed;z-index:99999;pointer-events:none;transform:scale(1.14) rotate(-5deg);
+  box-shadow:0 20px 40px -12px rgba(0,0,0,.95);opacity:.96;margin:0;
 }
+.ncard.in-slot{
+  min-width:0;min-height:0;width:100%;height:100%;border:0;background:transparent;
+  box-shadow:none;transform:none;
+}
+.ncard.in-slot:hover{transform:none}
+.cdots{
+  font-size:.5rem;letter-spacing:1px;color:var(--gold);line-height:1;max-width:100%;
+  overflow:hidden;white-space:nowrap;font-family:'Noto Sans Thai',sans-serif;
+}
+.ncard.in-slot .cdots{font-size:.55rem}
 
-/* ============ FOOTER ============ */
-footer{
-  border-top:1px solid var(--line);padding:40px 0 60px;text-align:center;color:var(--muted);font-size:.86rem;
+.qmsg{
+  text-align:center;min-height:26px;margin-top:12px;font-size:.9rem;font-weight:700;
+  color:var(--muted);transition:.2s;
 }
-footer .brand{justify-content:center;margin-bottom:12px;color:var(--text)}
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease}
-.reveal.in{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){
-  .reveal{opacity:1;transform:none;transition:none}
-  *{animation:none!important}
+.qmsg.ok{color:var(--ok)}
+.qmsg.bad{color:var(--bad)}
+
+/* ---------- ISLAND ---------- */
+.island-wrap{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:#071a2b}
+.island-wrap canvas{display:block;width:100%;height:auto}
+.island-ui{
+  position:absolute;inset:auto 0 0 0;padding:14px 16px;
+  background:linear-gradient(0deg,rgba(3,8,18,.92),transparent);
+  display:flex;flex-direction:column;gap:10px;
+}
+.island-title{font-family:'Baloo 2',sans-serif;font-size:1.15rem;color:var(--gold);text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.island-sub{font-size:.84rem;color:#dfe4f2;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+.island-actions{display:flex;gap:10px;flex-wrap:wrap}
+.eggbar{display:flex;gap:6px}
+.eggbar i{width:26px;height:7px;border-radius:99px;background:rgba(255,255,255,.25);transition:.3s}
+.eggbar i.on{background:var(--gold);box-shadow:0 0 12px var(--gold)}
+
+/* ---------- SUMMARY ---------- */
+.sum-card{
+  border-radius:22px;border:1px solid var(--line);
+  background:linear-gradient(160deg,rgba(176,107,255,.12),rgba(77,139,255,.06) 50%,rgba(255,255,255,.02));
+  padding:26px 22px;text-align:center;box-shadow:0 20px 50px -24px rgba(0,0,0,.9);
+}
+.sum-card h2{font-size:clamp(1.5rem,5vw,2rem);margin-bottom:6px}
+.sum-card .sub{color:var(--muted);font-size:.88rem;margin-bottom:20px}
+.sum-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:20px}
+.sum-stat{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:16px;padding:14px 8px}
+.sum-stat b{display:block;font-family:'Baloo 2',sans-serif;font-size:1.6rem;color:var(--gold);line-height:1.15}
+.sum-stat span{font-size:.72rem;color:var(--muted);letter-spacing:.5px}
+.voucher{
+  border-radius:18px;padding:20px;margin-bottom:20px;
+  background:linear-gradient(120deg,#2a2110,#3d2e12);border:1px solid rgba(255,207,92,.45);
+  position:relative;overflow:hidden;
+}
+.voucher::before{
+  content:"";position:absolute;inset:-50% -20% auto auto;width:200px;height:200px;border-radius:50%;
+  background:var(--gold);opacity:.14;filter:blur(40px);
+}
+.voucher .lab{font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.voucher .amt{font-family:'Baloo 2',sans-serif;font-size:2.2rem;color:var(--gold);line-height:1.15;margin:4px 0}
+.voucher .code{
+  display:inline-block;padding:6px 16px;border-radius:10px;background:rgba(0,0,0,.45);
+  letter-spacing:2px;font-weight:800;color:var(--gold);font-size:.9rem;font-family:'Baloo 2',monospace;
+}
+.sum-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* ---------- MODAL ---------- */
+.modal{
+  position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
+  background:rgba(3,5,14,.86);backdrop-filter:blur(8px);padding:16px;
+}
+.modal.on{display:flex;animation:fadein .25s}
+.modal-box{
+  width:min(100%,520px);max-height:88vh;overflow-y:auto;border-radius:22px;
+  background:#0d1220;border:1px solid var(--line);padding:22px;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.95);
+}
+.modal-box h3{font-size:1.15rem;margin-bottom:12px}
+.report{
+  white-space:pre-wrap;font-family:'Noto Sans Thai',monospace;font-size:.84rem;line-height:1.75;
+  background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:14px;padding:16px;
+  color:#dfe4f2;max-height:44vh;overflow-y:auto;margin-bottom:16px;
+}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap}
+.modal-actions .btn{flex:1;min-width:120px}
+
+/* ---------- MISC ---------- */
+.backbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.backbar .ttl{font-family:'Baloo 2',sans-serif;font-size:1.05rem}
+@media(max-width:520px){
+  .screen{padding:10px 0 30px}
+  .qpanel{padding:14px}
+  .hud{font-size:.74rem;padding:8px 10px}
+  .hp-row{gap:8px}
 }
 </style>
 </head>
 <body>
 
-<!-- ================= NAV ================= -->
-<nav class="nav">
-  <div class="wrap nav-in">
-    <div class="brand"><span class="logo">🐲</span> Leo Math Quest</div>
-    <div class="nav-links">
-      <a href="#mechanics">กลไกเกม</a>
-      <a href="#worlds">คลังข้อสอบ</a>
-      <a href="#demo">ลองเล่น</a>
-      <a href="#rewards">รางวัล &amp; LINE</a>
-    </div>
-  </div>
-</nav>
-
-<!-- ================= HERO ================= -->
-<header class="hero">
+<!-- ================= TITLE ================= -->
+<section class="screen active" id="screen-title">
   <div class="wrap">
-    <span class="eyebrow">✨ Final Design Documentation</span>
-    <h1>Leo Math Quest</h1>
-    <p class="lead">
-      เกมคณิตศาสตร์ที่ผสานกลไกสัมผัสแบบ <b>DragonBox</b>, แอนิเมชันการต่อสู้แบบ <b>Prodigy</b>,
-      เกาะพักสายตาแบบ <b>MathTango</b> และรายงานผู้ปกครองผ่าน <b>LINE</b> —
-      ออกแบบตามมาตรฐาน Cambridge Primary / IGCSE
-    </p>
-    <div class="hero-cta">
-      <a class="btn btn-primary" href="#demo">🎮 ลองกลไกลากดาว</a>
-      <a class="btn btn-ghost" href="#worlds">📚 ดูคลังข้อสอบ 40 ข้อ</a>
+    <div class="title-head">
+      <div class="leo-hero">🐲</div>
+      <span class="badge">Cambridge Primary · IGCSE Ready</span>
+      <h1>Leo's Math Quest</h1>
+      <p>ศึก 4 อัญมณีตรรกะ — ผจญภัยคณิตศาสตร์ 40 ข้อ กับกัปตันลีโอ</p>
     </div>
-    <div class="stats">
-      <div class="stat"><b>4</b><span>WORLDS · STAGES 1–4</span></div>
-      <div class="stat"><b>40</b><span>QUESTION BLUEPRINTS</span></div>
-      <div class="stat"><b>500฿</b><span>SCHOLARSHIP VOUCHER</span></div>
-    </div>
+    <div class="world-grid" id="worldGrid"></div>
   </div>
-</header>
+</section>
 
-<!-- ================= MECHANICS ================= -->
-<section id="mechanics">
+<!-- ================= BATTLE ================= -->
+<section class="screen" id="screen-battle">
   <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">Game Mechanics</span>
-      <h2>กลไกหลักและประสบการณ์ผู้เล่น</h2>
-      <p>สี่เสาหลักที่ทำให้การเรียนรู้เกิดก่อนสัญลักษณ์นามธรรม และรักษาสมาธิของผู้เรียนไว้ได้ตลอดเซสชัน</p>
+    <div class="backbar">
+      <button class="btn btn-g" onclick="restartAll()">← ออก</button>
+      <span class="ttl" id="battleTitle">ทับทิมแห่งการรวม</span>
     </div>
-    <div class="grid grid-4">
-      <article class="card reveal">
-        <div class="glow" style="background:var(--amethyst)"></div>
-        <div class="ic">🧩</div>
-        <h3>DragonBox Tactile Mechanics</h3>
-        <p>ผู้เล่นลาก วาง และจัดกลุ่มไอคอนคณิตศาสตร์บนหน้าจอโดยตรง แทนการเลือกคำตอบแบบปรนัย เพื่อให้เข้าใจ "ความสมดุล" และ "ความเท่ากัน" อย่างเป็นธรรมชาติก่อนเข้าสู่สัญลักษณ์นามธรรม</p>
-      </article>
-      <article class="card reveal">
-        <div class="glow" style="background:var(--ruby)"></div>
-        <div class="ic">⚔️</div>
-        <h3>Prodigy Canvas Battle</h3>
-        <p>ทุกโจทย์เปลี่ยนเป็นฉากต่อสู้แบบเทิร์นเบสบน Canvas คำตอบที่ถูกต้องทำให้ Leo ปล่อยพลังธาตุออกไปปราบอุปสรรค — ทุกการดำเนินการทางคณิตถูกทำให้เห็นเป็นเหตุและผล</p>
-      </article>
-      <article class="card reveal">
-        <div class="glow" style="background:var(--emerald)"></div>
-        <div class="ic">🏝️</div>
-        <h3>MathTango Eye-Rest Island</h3>
-        <p>หลังทุกคำถาม ผู้เล่นได้กลับสู่เกาะพักสายตา ทำกิจกรรมเบา ๆ เช่นวางสิ่งมีชีวิตใหม่หรือขยายที่อยู่อาศัย ช่วยบริหาร cognitive load และป้องกันภาวะหมดไฟ</p>
-      </article>
-      <article class="card reveal">
-        <div class="glow" style="background:var(--gold)"></div>
-        <div class="ic">💬</div>
-        <h3>LINE Parent Report</h3>
-        <p>เมื่อจบเซสชันหรือครบมิลสโตน ผู้ปกครองได้รับ "Progress Snapshot" ผ่าน LINE แสดงระดับความชำนาญตาม Cambridge Stage พร้อม Scholarship Voucher 500 บาทเมื่อผ่านด่าน</p>
-      </article>
+
+    <div class="hud">
+      <span class="pill">ข้อ <b id="hudQ">1</b>/10</span>
+      <span class="pill">⭐ <b id="hudLP">0</b> LP</span>
+      <span class="pill">✅ <b id="hudCorrect">0</b></span>
+      <span class="combo" id="hudCombo">🔥 COMBO x1</span>
+    </div>
+
+    <div class="hp-row">
+      <div class="hp-side">
+        <span class="nm">🐲 กัปตันลีโอ</span>
+        <div class="hpbar leo"><i id="hpLeo" style="width:100%"></i></div>
+      </div>
+      <div class="hp-side right">
+        <span class="nm" id="foeName">👹 หินยักษ์ทับทิม</span>
+        <div class="hpbar foe"><i id="hpFoe" style="width:100%"></i></div>
+      </div>
+    </div>
+
+    <div class="canvas-box">
+      <canvas id="battleCanvas"></canvas>
+    </div>
+
+    <div class="qpanel">
+      <div class="qhint"><span class="ic">💡</span><span id="qHint">โจทย์</span></div>
+      <div class="equation" id="equation"></div>
+      <div class="tray" id="tray"><div class="tray-label">ลากการ์ดตัวเลขไปวางในช่อง</div></div>
+      <div class="qmsg" id="qMsg"></div>
     </div>
   </div>
 </section>
 
-<!-- ================= WORLDS ================= -->
-<section id="worlds">
+<!-- ================= ISLAND ================= -->
+<section class="screen" id="screen-island">
   <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">Cambridge Primary Curriculum</span>
-      <h2>คลังข้อสอบแยกตามโลกและระดับชั้น</h2>
-      <p>กดที่ชื่อโลกเพื่อเปิด/ปิดรายการโจทย์ — แต่ละข้อผูกกับกลไกอินเทอร์แอ็กทีฟที่แตกต่างกัน</p>
-    </div>
-    <div id="worlds-list"></div>
-  </div>
-</section>
-
-<!-- ================= DEMO ================= -->
-<section id="demo">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">Interactive Prototype</span>
-      <h2>ลองกลไก DragonBox + Battle Animation</h2>
-      <p>ลากดาว 5 ดวงลงในสองกล่อง เพื่อพิสูจน์ว่า 5 เกิดจาก 2 และ 3 — เมื่อถูกต้อง Leo จะปล่อยพลังธาตุ</p>
-    </div>
-
-    <div class="demo-shell reveal">
-      <div class="demo-top">
-        <h3>🎯 Number Bonds — Ruby World (Stage 1)</h3>
-        <span class="hint">ลากด้วยเมาส์ หรือนิ้ว (รองรับ touch)</span>
-      </div>
-
-      <div class="battle" id="battle">
-        <div class="fighter leo">🐲<span class="name">LEO</span></div>
-        <div class="vs">VS</div>
-        <div class="fighter foe">🪨<span class="name">ROCK GOLEM</span></div>
-      </div>
-
-      <div class="tray" id="tray"></div>
-
-      <div class="boxes">
-        <div class="dropbox" data-need="2">
-          <span class="box-label">2</span>
-          <span class="box-sub">กล่องที่หนึ่ง</span>
-          <div class="slots"></div>
-        </div>
-        <div class="dropbox" data-need="3">
-          <span class="box-label">3</span>
-          <span class="box-sub">กล่องที่สอง</span>
-          <div class="slots"></div>
-        </div>
-      </div>
-
-      <div class="demo-status" id="status"></div>
-
-      <div class="demo-foot">
-        <button class="btn btn-ghost" id="reset">↺ เริ่มใหม่</button>
-      </div>
-
-      <div class="eyrest">
-        <span class="ic2">🏝️</span>
-        <div><b>Eye-Rest Island:</b> เมื่อตอบถูก ระบบจะพาไปพักสายตาที่เกาะ — วางไข่ creature ตัวใหม่หรือขยายพื้นที่ habitat ก่อนกลับไปสู่โจทย์ข้อถัดไป</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= REWARDS ================= -->
-<section id="rewards">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">Reward System</span>
-      <h2>สรุปรางวัลและการส่งมอบ</h2>
-      <p>ทุกรางวัลผูกกับพฤติกรรมการเรียนรู้ที่ต้องการส่งเสริม ไม่ใช่แค่การเล่นให้จบ</p>
-    </div>
-
-    <div class="grid grid-2" style="align-items:start">
-      <div class="table-wrap reveal">
-        <table>
-          <thead>
-            <tr><th>Reward Type</th><th>Delivery Method</th><th>Condition</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Eye-Rest Interaction</td><td>In-game Island</td><td>After every question</td></tr>
-            <tr><td>Battle Animation</td><td>Canvas Render</td><td>Correct answer submission</td></tr>
-            <tr><td>Progress Report</td><td>LINE Messaging</td><td>Daily / Session End</td></tr>
-            <tr><td>Scholarship Voucher <span class="badge">500 THB</span></td><td>LINE Digital Code</td><td>Stage Completion</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="line-mock reveal">
-        <div class="line-head">💬 LINE · ผู้ปกครองของ Leo</div>
-        <div class="line-body">
-          <div class="bubble">
-            <h4>📊 Progress Snapshot — วันนี้</h4>
-            <ul>
-              <li>Ruby World (Stage 1) — Mastery <b>85%</b></li>
-              <li>Number Bonds — <b>9/10</b> ถูกต้อง</li>
-              <li>เวลาเรียนรวม 18 นาที · พักสายตา 12 ครั้ง</li>
-            </ul>
-            <div class="bar"><i style="width:85%"></i></div>
-          </div>
-          <div class="bubble voucher">
-            <div class="amt">🎟️ 500 THB</div>
-            <div>Scholarship Voucher — Stage 1 Complete!</div>
-            <code>LMQ-500-4F2A</code>
-          </div>
+    <div class="island-wrap">
+      <canvas id="islandCanvas"></canvas>
+      <div class="island-ui">
+        <div class="island-title" id="islandTitle">🏝️ เกาะพักสายตาลีโอ</div>
+        <div class="island-sub" id="islandSub">แตะที่ไข่ 3 ครั้งเพื่อฟักสัตว์วิเศษ</div>
+        <div class="eggbar" id="eggBar"><i></i><i></i><i></i></div>
+        <div class="island-actions">
+          <button class="btn btn-gold" id="islandNext" style="display:none" onclick="nextQuestionFromIsland()">ไปข้อถัดไป →</button>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= FOOTER ================= -->
-<footer>
+<!-- ================= SUMMARY ================= -->
+<section class="screen" id="screen-summary">
   <div class="wrap">
-    <div class="brand"><span class="logo">🐲</span> Leo Math Quest</div>
-    <p>Final Design Documentation — Pedagogical Framework &amp; Content Structure<br>
-    Aligned with Cambridge Primary / IGCSE Standards</p>
+    <div class="sum-card">
+      <div style="font-size:48px;line-height:1;margin-bottom:8px" id="sumIcon">🏆</div>
+      <h2 id="sumTitle">พิชิตด่านสำเร็จ!</h2>
+      <p class="sub" id="sumSub">ทับทิมแห่งการรวม · ป.1 / Stage 1</p>
+
+      <div class="sum-stats">
+        <div class="sum-stat"><b id="sumScore">0/10</b><span>ตอบถูก</span></div>
+        <div class="sum-stat"><b id="sumAcc">0%</b><span>ความแม่นยำ</span></div>
+        <div class="sum-stat"><b id="sumLP">0</b><span>Lion Points</span></div>
+        <div class="sum-stat"><b id="sumCombo">x0</b><span>คอมโบสูงสุด</span></div>
+      </div>
+
+      <div class="voucher">
+        <div class="lab">🎟️ Scholarship Voucher</div>
+        <div class="amt" id="sumVoucherAmt">0 บาท</div>
+        <div class="code" id="sumVoucherCode">LEO-500-0000</div>
+      </div>
+
+      <div class="sum-actions">
+        <button class="btn btn-p" onclick="sendLineVoucher()">💬 ส่งรายงานผ่าน LINE</button>
+        <button class="btn btn-g" onclick="restartAll()">🏠 กลับหน้าแรก</button>
+      </div>
+    </div>
   </div>
-</footer>
+</section>
+
+<!-- ================= MODAL ================= -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3>📊 รายงานวิเคราะห์สมรรถนะสมอง</h3>
+    <div class="report" id="reportText"></div>
+    <div class="modal-actions">
+      <button class="btn btn-p" id="lineOpen">เปิด LINE เพื่อส่ง</button>
+      <button class="btn btn-g" id="copyBtn">คัดลอกข้อความ</button>
+      <button class="btn btn-g" onclick="closeModal()">ปิด</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* =========================================================
-   1) WORLD DATA — Cambridge Primary Question Bank
+   DATA — 4 Worlds × 10 Questions
    ========================================================= */
 const WORLDS = [
   {
-    name: "Ruby World", stage: "Stage 1 (ป.1)", icon: "🔴", color: "#ff4d6d",
-    focus: "Number sense, basic addition/subtraction, and 2D shapes",
-    items: [
-      ["DragonBox Interaction", "Drag the stars into two boxes to show that 5 is made of 2 and 3."],
-      ["Logic Quest", "What is the next number in the pattern? 2, 4, 6, 8, ..."],
-      ["Shape Sorter", "Identify the triangle among a circle, square, and rectangle."],
-      ["Counting Challenge", "Count the apples. If Leo eats 2 out of 7, how many remain?"],
-      ["Comparison", "Which number is greater: 14 or 41?"],
-      ["Time Discovery", "Which hand on the clock shows the hour?"],
-      ["Basic Ops", "Solve 10 + 5 using the tactile number line."],
-      ["Pattern Mastery", "Fill in the blank: Blue, Red, Blue, __, Blue."],
-      ["Weight Discovery", "Drag the heavier item to the low side of the scale."],
-      ["Number Bonds", "Find the missing partner for 10: 7 + __ = 10."]
+    id:0, name:"ทับทิมแห่งการรวม", en:"Ruby", stage:"ป.1 / Stage 1",
+    icon:"🔴", color:"#ff4d6d", foe:"👹 หินยักษ์ทับทิม",
+    focus:"การบวก · พันธะจำนวนคู่สิบ · การดับเบิ้ล",
+    atk:"เพลิงทับทิม",
+    dots:true,
+    qs:[
+      {q:"2 + 3 = ?", a:5,  c:[4,5,6],     h:"นับผลรวมของ 2 กับ 3"},
+      {q:"5 + 5 = ?", a:10, c:[9,10,11],   h:"ดับเบิ้ลของ 5"},
+      {q:"7 + ? = 10", a:3, c:[2,3,4],     h:"พันธะจำนวนคู่สิบ — 7 กับอะไรได้ 10"},
+      {q:"4 + 4 = ?", a:8,  c:[6,7,8],     h:"ดับเบิ้ลของ 4"},
+      {q:"10 + ? = 15", a:5, c:[4,5,6],    h:"เติมจำนวนที่หายไป"},
+      {q:"6 + 3 = ?", a:9,  c:[8,9,10],    h:"นับต่อจาก 6 อีก 3"},
+      {q:"? = 6 + 6", a:12, c:[10,11,12],  h:"ดับเบิ้ลของ 6"},
+      {q:"8 + ? = 20", a:12, c:[11,12,13], h:"พันธะจำนวนคู่ยี่สิบ"},
+      {q:"9 + 1 = ?", a:10, c:[9,10,11],   h:"คู่สิบสมบูรณ์"},
+      {q:"7 + 8 = ?", a:15, c:[13,14,15],  h:"ทำเป็นสิบก่อน: 7+3=10 แล้วบวก 5"}
     ]
   },
   {
-    name: "Sapphire World", stage: "Stage 2 (ป.2)", icon: "🔵", color: "#4d8bff",
-    focus: "Place value, measuring length, and simple multiplication",
-    items: [
-      ["Place Value", "Build the number 45 using 10-blocks and 1-cubes."],
-      ["Measurement", "Use the virtual ruler to measure the dragon's tail in centimeters."],
-      ["Multiplication Intro", "Create 3 groups of 5 stars. How many stars in total?"],
-      ["Division Intro", "Share 12 gems equally between 2 treasure chests."],
-      ["Geometry", "How many sides does a pentagon have?"],
-      ["Data Handling", "Look at the tally chart. Which fruit is the most popular?"],
-      ["Ordinal Numbers", "Which position is the gold trophy in: 1st, 2nd, or 3rd?"],
-      ["Subtraction", "Solve 50 − 25 using the \"jump back\" method."],
-      ["Fraction Intro", "Drag the line to cut the pizza into two equal halves."],
-      ["Estimation", "Estimate if a pencil is closer to 10 cm or 100 cm."]
+    id:1, name:"ไพลินแห่งการหาค่า", en:"Sapphire", stage:"ป.2 / Stage 2",
+    icon:"🔵", color:"#4d8bff", foe:"🟦 สไลม์ไพลิน",
+    focus:"การลบข้ามหลัก · ตัวไม่ทราบค่า · ตรรกะตาชั่ง",
+    atk:"คลื่นไพลิน",
+    dots:true,
+    qs:[
+      {q:"15 − 7 = ?", a:8,   c:[7,8,9],      h:"ลบข้ามหลัก"},
+      {q:"23 − 8 = ?", a:15,  c:[14,15,16],   h:"23 ลบ 8"},
+      {q:"? + 9 = 17", a:8,   c:[7,8,9],      h:"หาตัวไม่ทราบค่า"},
+      {q:"42 − 15 = ?", a:27, c:[26,27,28],   h:"ลบทีละหลัก"},
+      {q:"12 = 5 + ?", a:7,   c:[6,7,8],      h:"ตาชั่งสมดุล"},
+      {q:"30 − ? = 12", a:18, c:[17,18,19],   h:"หาตัวลบ"},
+      {q:"56 − 29 = ?", a:27, c:[26,27,28],   h:"ลบข้ามหลัก"},
+      {q:"? + 25 = 60", a:35, c:[34,35,36],   h:"หาตัวไม่ทราบค่า"},
+      {q:"71 − 46 = ?", a:25, c:[24,25,26],   h:"ลบสองหลัก"},
+      {q:"100 − 37 = ?", a:63, c:[62,63,64],  h:"ลบจาก 100"}
     ]
   },
   {
-    name: "Emerald World", stage: "Stage 3 (ป.3)", icon: "🟢", color: "#2ee6a8",
-    focus: "3-digit numbers, formal multiplication, and unit conversion",
-    items: [
-      ["Place Value", "What is the value of the digit 7 in 742?"],
-      ["Advanced Addition", "Calculate 156 + 234 using the column method."],
-      ["Multiplication", "Solve 4 × 8. Show your work on the canvas."],
-      ["Division", "What is 21 divided by 3?"],
-      ["Time Management", "If a movie starts at 2:00 PM and lasts 90 minutes, when does it end?"],
-      ["Money Math", "You have 100 THB. You buy a snack for 45 THB. How much change do you get?"],
-      ["Fractions", "Which is larger: 1/4 or 1/2?"],
-      ["Mass", "Convert 1 kilogram into grams."],
-      ["3D Shapes", "How many faces does a cube have?"],
-      ["Perimeter", "Calculate the perimeter of a square with sides of 5 cm."]
+    id:2, name:"มรกตแห่งการทวีคูณ", en:"Emerald", stage:"ป.3 / Stage 3",
+    icon:"🟢", color:"#2ee6a8", foe:"🌿 อสูรพฤกษามรกต",
+    focus:"สูตรคูณ · อาร์เรย์ · การหาร · พื้นที่",
+    atk:"ใบมีดมรกต",
+    dots:false,
+    qs:[
+      {q:"3 × 4 = ?", a:12,  c:[10,12,14],   h:"3 กลุ่ม กลุ่มละ 4"},
+      {q:"6 × 7 = ?", a:42,  c:[40,42,44],   h:"สูตรคูณแม่ 6"},
+      {q:"8 × 8 = ?", a:64,  c:[62,64,66],   h:"กำลังสองของ 8"},
+      {q:"24 ÷ 6 = ?", a:4,  c:[3,4,6],      h:"แบ่ง 24 เป็น 6 กลุ่มเท่ากัน"},
+      {q:"45 ÷ 9 = ?", a:5,  c:[4,5,6],      h:"9 คูณอะไรได้ 45"},
+      {q:"7 × 9 = ?", a:63,  c:[61,63,65],   h:"สูตรคูณแม่ 7"},
+      {q:"5 × 6 = ?", a:30,  c:[28,30,32],   h:"อาร์เรย์ 5 แถว แถวละ 6"},
+      {q:"พื้นที่ 7 ซม. × 8 ซม. = ?", a:56, c:[54,56,58], h:"พื้นที่ = กว้าง × ยาว (ตร.ซม.)"},
+      {q:"72 ÷ 8 = ?", a:9,  c:[8,9,10],     h:"8 คูณอะไรได้ 72"},
+      {q:"12 × 12 = ?", a:144, c:[142,144,146], h:"กำลังสองของ 12"}
     ]
   },
   {
-    name: "Amethyst World", stage: "Stage 4 (ป.4)", icon: "🟣", color: "#b06bff",
-    focus: "Decimals, area, complex data, and improper fractions",
-    items: [
-      ["Decimals", "Write \"five tenths\" as a decimal number."],
-      ["Area Quest", "Find the area of a rectangle with length 6 m and width 4 m."],
-      ["Negative Numbers", "What is 5 degrees colder than 2 degrees Celsius?"],
-      ["Advanced Fractions", "Convert the improper fraction 5/2 into a mixed number."],
-      ["Data Analysis", "Calculate the mode of this set: 2, 4, 4, 6, 8."],
-      ["Rounding", "Round 1,456 to the nearest hundred."],
-      ["Angle Identification", "Is a 120-degree angle acute, right, or obtuse?"],
-      ["Equivalent Fractions", "Find a fraction equivalent to 2/3."],
-      ["Symmetry", "Drag the line of symmetry across the butterfly image."],
-      ["Multi-step Problem", "Leo buys 3 potions for 15 gold each and pays with a 50-gold coin. How much change?"]
+    id:3, name:"เพชรตรรกะธุรกิจ & เศษส่วน", en:"Amethyst", stage:"ป.4 / Stage 4",
+    icon:"🟣", color:"#b06bff", foe:"🦇 ค้างคาวคริสตัล",
+    focus:"โจทย์ 2 ชั้น · กำไร-ต้นทุน · ทอนเงิน · เศษส่วน · ทศนิยม",
+    atk:"ลำแสงเพชร",
+    dots:false,
+    qs:[
+      {q:"ปากกา 3 ด้าม ด้ามละ 15 บาท จ่าย 50 ทอน ? บาท", a:5,   c:[4,5,6],       h:"โจทย์ 2 ชั้น — หาราคารวมก่อน"},
+      {q:"ต้นทุน 40 ขาย 65 กำไร ? บาท", a:25,  c:[20,25,30],    h:"กำไร = ราคาขาย − ต้นทุน"},
+      {q:"0.5 = ? /10", a:5,   c:[4,5,6],       h:"ทศนิยมหนึ่งตำแหน่ง"},
+      {q:"1/2 = ? /4", a:2,    c:[1,2,3],       h:"เศษส่วนเท่ากัน"},
+      {q:"หนังสือ 4 เล่ม เล่มละ 25 จ่าย 200 ทอน ? บาท", a:100, c:[90,100,110],  h:"โจทย์ 2 ชั้น"},
+      {q:"ต้นทุน 120 ขาย 150 กำไร ? บาท", a:30, c:[25,30,35],   h:"กำไร = ราคาขาย − ต้นทุน"},
+      {q:"0.7 + 0.2 = ?", a:0.9, c:[0.8,0.9,1],  h:"บวกทศนิยม"},
+      {q:"3/4 ของ 20 = ?", a:15, c:[10,15,20],   h:"แบ่ง 4 ส่วน เอา 3 ส่วน"},
+      {q:"เสื้อ 2 ตัว ตัวละ 180 ลด 50 จ่าย ? บาท", a:310, c:[300,310,320], h:"โจทย์ 2 ชั้น"},
+      {q:"12.5 × 4 = ?", a:50,   c:[45,50,55],   h:"คูณทศนิยม"}
     ]
   }
 ];
 
-/* ---- Render worlds ---- */
-const worldsList = document.getElementById('worlds-list');
-WORLDS.forEach((w, wi) => {
-  const el = document.createElement('article');
-  el.className = 'world' + (wi === 0 ? ' open' : '');
-  el.style.setProperty('--w', w.color);
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+  screen:'title',
+  world:0,
+  qi:0,
+  combo:0,
+  bestCombo:0,
+  lp:0,
+  correct:0,
+  foeHP:100,
+  locked:false,
+  answered:false,
+  islandTaps:0,
+  hatched:false,
+  eggs:[]
+};
 
-  const items = w.items.map(([tag, q], i) => `
-    <li>
-      <span class="qnum">${i + 1}</span>
-      <div class="qtext">
-        <span class="tag">${tag}</span>
-        <p>${q}</p>
-      </div>
-    </li>`).join('');
-
-  el.innerHTML = `
-    <button class="world-head" aria-expanded="${wi === 0}">
-      <span class="gem">${w.icon}</span>
-      <span class="wtitles">
-        <strong>${w.name}</strong>
-        <em>${w.stage}</em>
-      </span>
-      <span class="chip">${w.items.length} ข้อ</span>
-      <span class="caret">▾</span>
-    </button>
-    <div class="world-body">
-      <div>
-        <div class="wb-inner">
-          <p class="focus"><b>Focus:</b> ${w.focus}</p>
-          <ol class="qlist">${items}</ol>
-        </div>
-      </div>
-    </div>`;
-
-  const head = el.querySelector('.world-head');
-  head.addEventListener('click', () => {
-    const open = el.classList.toggle('open');
-    head.setAttribute('aria-expanded', String(open));
-  });
-
-  worldsList.appendChild(el);
-});
+const $ = id => document.getElementById(id);
 
 /* =========================================================
-   2) DRAG & DROP DEMO — DragonBox tactile mechanic
+   AUDIO — Web Audio API (no external files)
    ========================================================= */
-const tray     = document.getElementById('tray');
-const boxes    = Array.from(document.querySelectorAll('.dropbox'));
-const statusEl = document.getElementById('status');
-const battle   = document.getElementById('battle');
-const resetBtn = document.getElementById('reset');
-
-let dragEl = null, ghost = null;
-
-function buildStars() {
-  tray.innerHTML = '';
-  boxes.forEach(b => {
-    b.querySelector('.slots').innerHTML = '';
-    b.classList.remove('hover');
-  });
-  battle.classList.remove('win');
-
-  for (let i = 0; i < 5; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    s.textContent = '⭐';
-    s.setAttribute('role', 'img');
-    s.setAttribute('aria-label', 'ดาว');
-    s.addEventListener('pointerdown', startDrag);
-    tray.appendChild(s);
+let actx = null;
+function ensureAudio(){
+  try{
+    if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state === 'suspended') actx.resume();
+  }catch(e){ actx = null; }
+  return actx;
+}
+function tone(freq, dur, type, vol, slideTo){
+  const ac = ensureAudio(); if(!ac) return;
+  const o = ac.createOscillator();
+  const g = ac.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(freq, ac.currentTime);
+  if(slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(slideTo,1), ac.currentTime + dur);
+  g.gain.setValueAtTime(0.0001, ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(vol||0.16, ac.currentTime + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+  o.connect(g); g.connect(ac.destination);
+  o.start(); o.stop(ac.currentTime + dur + 0.03);
+}
+function sfx(name){
+  switch(name){
+    case 'click':   tone(620, .07, 'square', .08); break;
+    case 'place':   tone(440, .09, 'triangle', .12); break;
+    case 'good':    tone(523,.10,'sine',.16); setTimeout(()=>tone(659,.10,'sine',.16),85); setTimeout(()=>tone(784,.18,'sine',.16),170); break;
+    case 'bad':     tone(210,.22,'sawtooth',.12,120); break;
+    case 'hit':     tone(140,.14,'square',.14,60); break;
+    case 'hatch':   tone(420,.35,'sine',.16,960); break;
+    case 'coin':    tone(880,.08,'square',.10); setTimeout(()=>tone(1320,.12,'square',.09),70); break;
+    case 'win':     [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.22,'sine',.16),i*110)); break;
   }
-  setStatus('ลากดาว 5 ดวงลงในสองกล่อง เพื่อแสดงว่า 5 = 2 + 3', '');
 }
 
-function setStatus(msg, cls) {
-  statusEl.textContent = msg;
-  statusEl.className = 'demo-status' + (cls ? ' ' + cls : '');
+/* =========================================================
+   CANVAS HELPERS
+   ========================================================= */
+function setupCanvas(cv, w, h){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.round(w*dpr);
+  cv.height = Math.round(h*dpr);
+  cv.style.aspectRatio = w + ' / ' + h;
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return ctx;
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
 }
 
-function startDrag(e) {
+/* =========================================================
+   BATTLE CANVAS
+   ========================================================= */
+const BW = 800, BH = 360;
+const cvBattle = $('battleCanvas');
+const bctx = setupCanvas(cvBattle, BW, BH);
+
+let bTime = 0, lastTs = 0;
+const anim = {
+  attack: -1,        // -1 idle, 0..1 progress
+  foeShake: 0,
+  leoShake: 0,
+  hitFlash: 0,
+  particles: [],
+  floaters: []
+};
+let groundOffset = 0;
+
+function spawnBurst(x,y,color,n){
+  for(let i=0;i<(n||26);i++){
+    const a = Math.random()*Math.PI*2;
+    const s = 1.2 + Math.random()*5.5;
+    anim.particles.push({
+      x, y,
+      vx: Math.cos(a)*s,
+      vy: Math.sin(a)*s - 1.2,
+      life: 1,
+      color: color
+    });
+  }
+}
+function spawnFloater(x,y,text,color){
+  anim.floaters.push({x,y,text,color,life:1});
+}
+
+function drawSky(ctx){
+  const g = ctx.createLinearGradient(0,0,0,BH);
+  g.addColorStop(0,'#0a0f2e');
+  g.addColorStop(.55,'#1a1140');
+  g.addColorStop(1,'#2a1444');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,BW,BH);
+
+  // stars
+  ctx.fillStyle = 'rgba(255,255,255,.55)';
+  for(let i=0;i<46;i++){
+    const x = (i*167.3) % BW;
+    const y = (i*89.7) % (BH*0.62);
+    const tw = 0.5 + 0.5*Math.sin(bTime*2 + i);
+    ctx.globalAlpha = 0.25 + tw*0.5;
+    ctx.fillRect(x, y, 2, 2);
+  }
+  ctx.globalAlpha = 1;
+
+  // moon glow
+  const mg = ctx.createRadialGradient(660,72,4,660,72,110);
+  mg.addColorStop(0,'rgba(180,200,255,.35)');
+  mg.addColorStop(1,'rgba(180,200,255,0)');
+  ctx.fillStyle = mg;
+  ctx.fillRect(520,0,300,220);
+  ctx.beginPath();
+  ctx.arc(660,72,26,0,Math.PI*2);
+  ctx.fillStyle = 'rgba(220,232,255,.9)';
+  ctx.fill();
+}
+
+function drawGround(ctx){
+  // distant hills
+  ctx.fillStyle = 'rgba(40,25,75,.85)';
+  ctx.beginPath();
+  ctx.moveTo(0,BH-96);
+  for(let x=0;x<=BW;x+=40){
+    ctx.lineTo(x, BH-96 - 26*Math.sin(x*0.011) - 14*Math.cos(x*0.023));
+  }
+  ctx.lineTo(BW,BH); ctx.lineTo(0,BH); ctx.closePath(); ctx.fill();
+
+  // platform
+  const g = ctx.createLinearGradient(0,BH-104,0,BH);
+  g.addColorStop(0,'#3a2560');
+  g.addColorStop(1,'#1a0f30');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.ellipse(BW/2, BH-72, 430, 52, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(255,255,255,.09)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(BW/2, BH-72, 430, 52, 0, 0, Math.PI*2);
+  ctx.stroke();
+}
+
+function drawLeo(ctx, x, y, t, flashing){
+  ctx.save();
+  ctx.translate(x, y);
+
+  const bob = Math.sin(t*2.2)*4;
+  ctx.translate(0, bob);
+
+  if(flashing > 0){
+    ctx.shadowColor = '#ffcf5c';
+    ctx.shadowBlur = 30;
+  }
+
+  // tail
+  ctx.beginPath();
+  ctx.moveTo(-42, 6);
+  ctx.quadraticCurveTo(-78, -6 + Math.sin(t*3)*6, -96, -30 + Math.sin(t*3)*8);
+  ctx.lineWidth = 12;
+  ctx.strokeStyle = '#2ec98a';
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // tail tip
+  ctx.beginPath();
+  ctx.arc(-96, -30 + Math.sin(t*3)*8, 8, 0, Math.PI*2);
+  ctx.fillStyle = '#ffcf5c';
+  ctx.fill();
+
+  // wings
+  ctx.beginPath();
+  ctx.moveTo(-6,-30);
+  ctx.quadraticCurveTo(-56,-84,-8,-56);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(120,220,255,.7)';
+  ctx.fill();
+
+  // body
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 44, 40, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#35d69a';
+  ctx.fill();
+  ctx.strokeStyle = '#1a9e6f';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // belly
+  ctx.beginPath();
+  ctx.ellipse(4, 10, 24, 22, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#a8f2cf';
+  ctx.fill();
+
+  // head
+  ctx.beginPath();
+  ctx.ellipse(20, -32, 32, 28, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#3fe0a5';
+  ctx.fill();
+  ctx.strokeStyle = '#1a9e6f';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // snout
+  ctx.beginPath();
+  ctx.ellipse(44, -24, 17, 13, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#8df0c6';
+  ctx.fill();
+
+  // nostril
+  ctx.beginPath();
+  ctx.arc(55, -27, 2.6, 0, Math.PI*2);
+  ctx.fillStyle = '#0d6b4a';
+  ctx.fill();
+
+  // eye
+  ctx.beginPath();
+  ctx.ellipse(28, -40, 8.5, 9.5, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(30 + Math.sin(t*1.5)*1.5, -39, 4.6, 0, Math.PI*2);
+  ctx.fillStyle = '#10203a';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(31.5, -41, 1.6, 0, Math.PI*2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+
+  // horns
+  ctx.beginPath();
+  ctx.moveTo(6,-58); ctx.lineTo(2,-78); ctx.lineTo(16,-62); ctx.closePath();
+  ctx.fillStyle = '#ffcf5c'; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(24,-60); ctx.lineTo(26,-80); ctx.lineTo(34,-60); ctx.closePath();
+  ctx.fillStyle = '#ffcf5c'; ctx.fill();
+
+  // legs
+  ctx.fillStyle = '#2bbf88';
+  ctx.beginPath(); ctx.ellipse(-18, 34, 13, 11, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(18, 36, 13, 11, 0, 0, Math.PI*2); ctx.fill();
+
+  ctx.restore();
+}
+
+function drawFoe(ctx, x, y, t, worldIdx, shake){
+  ctx.save();
+  ctx.translate(x + shake, y);
+  const bob = Math.sin(t*2 + 1.4)*4;
+  ctx.translate(0, bob);
+
+  const C = WORLDS[worldIdx].color;
+
+  if(worldIdx === 0){
+    // rock golem
+    ctx.fillStyle = C;
+    ctx.strokeStyle = 'rgba(0,0,0,.35)';
+    ctx.lineWidth = 3;
+    roundRect(ctx,-46,-58,92,86,14); ctx.fill(); ctx.stroke();
+    roundRect(ctx,-62,10,34,44,10); ctx.fill(); ctx.stroke();
+    roundRect(ctx,28,10,34,44,10); ctx.fill(); ctx.stroke();
+    roundRect(ctx,-70,-46,26,34,9); ctx.fill(); ctx.stroke();
+    roundRect(ctx,44,-46,26,34,9); ctx.fill(); ctx.stroke();
+    // eyes
+    ctx.fillStyle = '#ffe27a';
+    ctx.beginPath(); ctx.arc(-16,-28,9,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(16,-28,9,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#331000';
+    ctx.beginPath(); ctx.arc(-15,-27,4.4,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(17,-27,4.4,0,Math.PI*2); ctx.fill();
+    // crack mouth
+    ctx.strokeStyle = '#2b0a12'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(-18,4); ctx.lineTo(-6,10); ctx.lineTo(4,2); ctx.lineTo(16,9); ctx.stroke();
+  }
+  else if(worldIdx === 1){
+    // slime
+    const wob = Math.sin(t*3.4)*4;
+    ctx.beginPath();
+    ctx.moveTo(-56,42);
+    ctx.bezierCurveTo(-62,-20, -30,-62+wob, 0,-62+wob);
+    ctx.bezierCurveTo(30,-62+wob, 62,-20, 56,42);
+    ctx.quadraticCurveTo(0,58, -56,42);
+    ctx.closePath();
+    ctx.fillStyle = C; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 3; ctx.stroke();
+    // shine
+    ctx.beginPath();
+    ctx.ellipse(-20,-32,13,9,-0.5,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fill();
+    // eyes
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-16,-10,11,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(18,-10,11,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#0b1830';
+    ctx.beginPath(); ctx.arc(-14,-9,5.5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(20,-9,5.5,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#0b1830'; ctx.lineWidth = 2.6;
+    ctx.beginPath(); ctx.arc(2,16,12,0.25,Math.PI-0.25); ctx.stroke();
+  }
+  else if(worldIdx === 2){
+    // plant beast
+    ctx.strokeStyle = '#1a7a58'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+    for(let i=0;i<5;i++){
+      const a = -Math.PI/2 + (i-2)*0.52;
+      const ex = Math.cos(a)*46, ey = Math.sin(a)*46;
+      ctx.beginPath(); ctx.moveTo(0,-24); ctx.lineTo(ex,ey-24); ctx.stroke();
+      ctx.beginPath(); ctx.arc(ex, ey-24, 11, 0, Math.PI*2);
+      ctx.fillStyle = C; ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.ellipse(0, 4, 48, 46, 0, 0, Math.PI*2);
+    ctx.fillStyle = '#1fbc82'; ctx.fill();
+    ctx.strokeStyle = '#12734f'; ctx.lineWidth = 3; ctx.stroke();
+    // eyes
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.ellipse(-17,-6,12,13,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(19,-6,12,13,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#0d2a1e';
+    ctx.beginPath(); ctx.arc(-15,-4,5.6,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(21,-4,5.6,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#0d2a1e'; ctx.lineWidth = 2.6;
+    ctx.beginPath(); ctx.moveTo(-12,24); ctx.quadraticCurveTo(1,34,14,24); ctx.stroke();
+  }
+  else{
+    // crystal bat
+    const flap = Math.sin(t*7)*16;
+    ctx.fillStyle = 'rgba(176,107,255,.72)';
+    ctx.beginPath();
+    ctx.moveTo(-14,-10);
+    ctx.quadraticCurveTo(-74,-46-flap,-96,6);
+    ctx.quadraticCurveTo(-58,-4,-14,16);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(14,-10);
+    ctx.quadraticCurveTo(74,-46-flap,96,6);
+    ctx.quadraticCurveTo(58,-4,14,16);
+    ctx.closePath(); ctx.fill();
+    // body
+    ctx.beginPath();
+    ctx.ellipse(0,4,32,38,0,0,Math.PI*2);
+    ctx.fillStyle = C; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 2.5; ctx.stroke();
+    // ears
+    ctx.beginPath(); ctx.moveTo(-20,-26); ctx.lineTo(-28,-56); ctx.lineTo(-6,-34); ctx.closePath();
+    ctx.fillStyle = C; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(20,-26); ctx.lineTo(28,-56); ctx.lineTo(6,-34); ctx.closePath();
+    ctx.fillStyle = C; ctx.fill();
+    // eyes
+    ctx.fillStyle = '#ffe27a';
+    ctx.beginPath(); ctx.arc(-12,-6,8,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(12,-6,8,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#2a0f4a';
+    ctx.beginPath(); ctx.arc(-11,-5,3.8,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(13,-5,3.8,0,Math.PI*2); ctx.fill();
+    // fangs
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.moveTo(-8,18); ctx.lineTo(-4,30); ctx.lineTo(0,18); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(4,18); ctx.lineTo(8,30); ctx.lineTo(12,18); ctx.closePath(); ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawBattle(ts){
+  const dt = Math.min((ts - lastTs)/1000, 0.05) || 0;
+  lastTs = ts;
+  bTime += dt;
+
+  const ctx = bctx;
+  ctx.clearRect(0,0,BW,BH);
+  drawSky(ctx);
+  drawGround(ctx);
+
+  const leoX = 168, leoY = BH - 122;
+  const foeX = 626, foeY = BH - 128;
+
+  // attack projectile
+  let projX = null, projY = null;
+  if(anim.attack >= 0 && anim.attack < 0.62){
+    const p = anim.attack / 0.62;
+    projX = leoX + 54 + (foeX - 40 - leoX - 54) * p;
+    projY = leoY - 34 + Math.sin(p*Math.PI) * -60;
+  }
+
+  const leoShake = anim.leoShake > 0 ? Math.sin(bTime*60)*7*anim.leoShake : 0;
+  drawLeo(ctx, leoX + leoShake, leoY, bTime, anim.attack >= 0 && anim.attack < 0.35 ? 1 : 0);
+
+  const foeShake = anim.foeShake > 0 ? Math.sin(bTime*70)*9*anim.foeShake : 0;
+  drawFoe(ctx, foeX, foeY, bTime, state.world, foeShake);
+
+  // projectile
+  if(projX !== null){
+    const C = WORLDS[state.world].color;
+    const gg = ctx.createRadialGradient(projX, projY, 2, projX, projY, 28);
+    gg.addColorStop(0,'#ffffff');
+    gg.addColorStop(.4, C);
+    gg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = gg;
+    ctx.beginPath(); ctx.arc(projX, projY, 28, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(projX, projY, 11, 0, Math.PI*2);
+    ctx.fillStyle = '#fff'; ctx.fill();
+  }
+
+  // hit flash
+  if(anim.hitFlash > 0){
+    ctx.fillStyle = 'rgba(255,255,255,' + (anim.hitFlash*0.4) + ')';
+    ctx.fillRect(0,0,BW,BH);
+  }
+
+  // particles
+  anim.particles = anim.particles.filter(p => p.life > 0);
+  anim.particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.22; p.vx *= 0.985;
+    p.life -= dt*1.5;
+    if(p.life <= 0) return;
+    ctx.globalAlpha = Math.max(p.life,0);
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3.6*Math.max(p.life,.3), 0, Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  // floaters
+  anim.floaters = anim.floaters.filter(f => f.life > 0);
+  anim.floaters.forEach(f => {
+    f.y -= 34*dt;
+    f.life -= dt*0.8;
+    if(f.life <= 0) return;
+    ctx.globalAlpha = Math.max(f.life,0);
+    ctx.font = '800 30px "Baloo 2", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = 'rgba(0,0,0,.7)';
+    ctx.strokeText(f.text, f.x, f.y);
+    ctx.fillStyle = f.color;
+    ctx.fillText(f.text, f.x, f.y);
+  });
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'start';
+
+  // update animation timers
+  if(anim.attack >= 0){
+    anim.attack += dt * 1.5;
+    if(anim.attack >= 0.62 && anim.attack - dt*1.5 < 0.62){
+      // impact moment
+      sfx('hit');
+      anim.foeShake = 1;
+      anim.hitFlash = 1;
+      spawnBurst(foeX - 30, foeY - 20, WORLDS[state.world].color, 30);
+      spawnBurst(foeX - 20, foeY - 30, '#ffcf5c', 16);
+    }
+    if(anim.attack > 1.05) anim.attack = -1;
+  }
+  if(anim.foeShake > 0) anim.foeShake -= dt*2.4;
+  if(anim.leoShake > 0) anim.leoShake -= dt*2.4;
+  if(anim.hitFlash > 0) anim.hitFlash -= dt*2.2;
+
+  // idle sparkles
+  if(Math.random() < 0.05){
+    spawnBurst(foeX + (Math.random()-0.5)*90, foeY - 40 + (Math.random()-0.5)*60, WORLDS[state.world].color, 1);
+  }
+}
+
+/* =========================================================
+   ISLAND CANVAS
+   ========================================================= */
+const IW = 800, IH = 430;
+const cvIsland = $('islandCanvas');
+const ictx = setupCanvas(cvIsland, IW, IH);
+let iTime = 0;
+
+function drawIsland(ts){
+  const dt = Math.min((ts - lastTs)/1000, 0.05) || 0;
+  lastTs = ts;
+  iTime += dt;
+
+  const ctx = ictx;
+  const W = IW, H = IH;
+
+  // sky
+  const sky = ctx.createLinearGradient(0,0,0,H*0.62);
+  sky.addColorStop(0,'#7fd8ff');
+  sky.addColorStop(.55,'#bfe9ff');
+  sky.addColorStop(1,'#ffe9c4');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0,0,W,H*0.64);
+
+  // sun
+  const sx = 660, sy = 82;
+  const sg = ctx.createRadialGradient(sx,sy,8,sx,sy,110);
+  sg.addColorStop(0,'rgba(255,246,200,1)');
+  sg.addColorStop(.28,'rgba(255,220,120,.75)');
+  sg.addColorStop(1,'rgba(255,220,120,0)');
+  ctx.fillStyle = sg;
+  ctx.beginPath(); ctx.arc(sx,sy,110,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(sx,sy,34,0,Math.PI*2);
+  ctx.fillStyle = '#fff6c0'; ctx.fill();
+
+  // clouds
+  for(let i=0;i<4;i++){
+    const cx = ((iTime*16 + i*260) % (W+280)) - 140;
+    const cy = 52 + i*34;
+    ctx.fillStyle = 'rgba(255,255,255,' + (0.75 - i*0.1) + ')';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 24, 0, Math.PI*2);
+    ctx.arc(cx+28, cy+6, 30, 0, Math.PI*2);
+    ctx.arc(cx+62, cy, 22, 0, Math.PI*2);
+    ctx.arc(cx+30, cy-14, 22, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // sea
+  const sea = ctx.createLinearGradient(0,H*0.58,0,H);
+  sea.addColorStop(0,'#3fb7e8');
+  sea.addColorStop(.5,'#1f83c4');
+  sea.addColorStop(1,'#0d5a94');
+  ctx.fillStyle = sea;
+  ctx.fillRect(0,H*0.58,W,H*0.42);
+
+  // waves
+  ctx.strokeStyle = 'rgba(255,255,255,.4)';
+  ctx.lineWidth = 2.4;
+  for(let r=0;r<7;r++){
+    ctx.beginPath();
+    const yy = H*0.62 + r*22;
+    for(let x=0;x<=W;x+=14){
+      const y = yy + Math.sin(x*0.03 + iTime*1.6 + r)*4.2;
+      if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.globalAlpha = 0.5 - r*0.055;
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // island
+  const cx = 380, cy = 300;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy+42, 220, 52, 0, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,.16)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 212, 62, 0, 0, Math.PI*2);
+  const sand = ctx.createLinearGradient(cx-200, cy-60, cx+200, cy+60);
+  sand.addColorStop(0,'#ffe6a8');
+  sand.addColorStop(1,'#e8c176');
+  ctx.fillStyle = sand;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(160,120,50,.35)';
+  ctx.lineWidth = 3; ctx.stroke();
+
+  // grass patch
+  ctx.beginPath();
+  ctx.ellipse(cx-14, cy-16, 118, 34, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#79d68a';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(cx-24, cy-22, 74, 20, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#95e6a4';
+  ctx.fill();
+
+  // palm tree
+  const px = cx - 118, py = cy - 18;
+  ctx.strokeStyle = '#a5713c';
+  ctx.lineWidth = 13; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(px, py);
+  ctx.quadraticCurveTo(px-12, py-56, px+8, py-108);
+  ctx.stroke();
+  ctx.fillStyle = '#3fae5c';
+  for(let i=0;i<6;i++){
+    const a = -Math.PI/2 + (i-2.5)*0.55;
+    const ex = px+8 + Math.cos(a)*62;
+    const ey = py-108 + Math.sin(a)*44;
+    ctx.beginPath();
+    ctx.moveTo(px+8, py-108);
+    ctx.quadraticCurveTo((px+8+ex)/2, (py-108+ey)/2 - 22, ex, ey);
+    ctx.quadraticCurveTo((px+8+ex)/2, (py-108+ey)/2 + 10, px+8, py-108);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#8a5a2b';
+  ctx.beginPath(); ctx.arc(px+2, py-104, 7, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(px+16, py-100, 7, 0, Math.PI*2); ctx.fill();
+
+  // ---- egg or creature ----
+  const ex = cx + 24, ey = cy - 42;
+
+  if(!state.hatched){
+    const wob = state.islandTaps > 0 ? Math.sin(iTime*18)*state.islandTaps*3.2 : 0;
+    ctx.save();
+    ctx.translate(ex, ey);
+    ctx.rotate(wob*0.02);
+
+    // shadow
+    ctx.beginPath();
+    ctx.ellipse(0, 54, 34, 10, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fill();
+
+    // egg body
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 34, 46, 0, 0, Math.PI*2);
+    const eg = ctx.createLinearGradient(-34,-46,34,46);
+    eg.addColorStop(0,'#fff6e2');
+    eg.addColorStop(1,'#ffd9a0');
+    ctx.fillStyle = eg; ctx.fill();
+    ctx.strokeStyle = 'rgba(190,140,80,.45)'; ctx.lineWidth = 2.6; ctx.stroke();
+
+    // spots
+    ctx.fillStyle = 'rgba(255,180,110,.7)';
+    ctx.beginPath(); ctx.arc(-12,-12,7,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(13,6,6,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-4,24,5,0,Math.PI*2); ctx.fill();
+
+    // cracks per tap
+    ctx.strokeStyle = '#8a5a2b';
+    ctx.lineWidth = 2.6;
+    ctx.lineCap = 'round';
+    if(state.islandTaps >= 1){
+      ctx.beginPath(); ctx.moveTo(-16,-20); ctx.lineTo(-6,-8); ctx.lineTo(-14,2); ctx.stroke();
+    }
+    if(state.islandTaps >= 2){
+      ctx.beginPath(); ctx.moveTo(14,-24); ctx.lineTo(4,-12); ctx.lineTo(14,0); ctx.lineTo(6,12); ctx.stroke();
+    }
+    if(state.islandTaps >= 3){
+      ctx.beginPath(); ctx.moveTo(-20,14); ctx.lineTo(-4,20); ctx.lineTo(10,14); ctx.lineTo(20,22); ctx.stroke();
+    }
+    ctx.restore();
+  } else {
+    // hatched creature walking
+    const walkRange = 96;
+    const wx = ex + Math.sin(iTime*1.1) * walkRange;
+    const dir = Math.cos(iTime*1.1) >= 0 ? 1 : -1;
+    const hop = Math.abs(Math.sin(iTime*6)) * 6;
+
+    ctx.save();
+    ctx.translate(wx, ey + 12 - hop);
+
+    // shadow
+    ctx.beginPath();
+    ctx.ellipse(0, 40, 30, 9, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fill();
+
+    const C = WORLDS[state.world].color;
+
+    // legs
+    ctx.fillStyle = C;
+    ctx.beginPath(); ctx.ellipse(-13, 30, 9, 12, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(13, 30, 9, 12, 0, 0, Math.PI*2); ctx.fill();
+
+    // body
+    ctx.beginPath();
+    ctx.ellipse(0, 8, 30, 28, 0, 0, Math.PI*2);
+    ctx.fillStyle = C; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // belly
+    ctx.beginPath();
+    ctx.ellipse(0, 14, 17, 16, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.fill();
+
+    // ears
+    ctx.fillStyle = C;
+    ctx.beginPath(); ctx.moveTo(-16,-14); ctx.lineTo(-22,-36); ctx.lineTo(-4,-20); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(16,-14); ctx.lineTo(22,-36); ctx.lineTo(4,-20); ctx.closePath(); ctx.fill();
+
+    // eyes
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-9*dir+ (dir>0?0:0), -4, 7.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(9, -4, 7.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#10203a';
+    ctx.beginPath(); ctx.arc(-8+dir*2, -3, 3.6, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(10+dir*2, -3, 3.6, 0, Math.PI*2); ctx.fill();
+
+    // smile
+    ctx.strokeStyle = '#10203a'; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.arc(1, 6, 7, 0.2, Math.PI-0.2); ctx.stroke();
+
+    // tail
+    ctx.beginPath();
+    ctx.moveTo(-26, 12);
+    ctx.quadraticCurveTo(-44, 4, -40, -12);
+    ctx.lineWidth = 7; ctx.strokeStyle = C; ctx.lineCap='round';
+    ctx.stroke();
+
+    ctx.restore();
+
+    // sparkles
+    if(Math.random() < 0.14){
+      ctx.fillStyle = 'rgba(255,255,180,.9)';
+      const pxp = wx + (Math.random()-0.5)*80;
+      const pyp = ey - 20 + (Math.random()-0.5)*70;
+      const s = 2 + Math.random()*3;
+      ctx.beginPath();
+      ctx.moveTo(pxp, pyp-s); ctx.lineTo(pxp+s*0.4, pyp-s*0.4);
+      ctx.lineTo(pxp+s, pyp); ctx.lineTo(pxp+s*0.4, pyp+s*0.4);
+      ctx.lineTo(pxp, pyp+s); ctx.lineTo(pxp-s*0.4, pyp+s*0.4);
+      ctx.lineTo(pxp-s, pyp); ctx.lineTo(pxp-s*0.4, pyp-s*0.4);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+}
+
+/* =========================================================
+   MASTER LOOP
+   ========================================================= */
+function masterLoop(ts){
+  if(state.screen === 'battle') drawBattle(ts);
+  else if(state.screen === 'island') drawIsland(ts);
+  else lastTs = ts;
+  requestAnimationFrame(masterLoop);
+}
+requestAnimationFrame(masterLoop);
+
+/* =========================================================
+   SCREEN MANAGEMENT
+   ========================================================= */
+function showScreen(name){
+  state.screen = name;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = $('screen-' + name);
+  if(el) el.classList.add('active');
+  window.scrollTo({top:0, behavior:'instant'});
+  lastTs = performance.now();
+}
+
+/* =========================================================
+   TITLE / WORLD SELECT
+   ========================================================= */
+function renderWorlds(){
+  const grid = $('worldGrid');
+  grid.innerHTML = '';
+  WORLDS.forEach(w => {
+    const b = document.createElement('button');
+    b.className = 'wcard';
+    b.style.setProperty('--c', w.color);
+    b.type = 'button';
+    b.innerHTML = `
+      <div class="gem">${w.icon}</div>
+      <h3>${w.name}</h3>
+      <div class="stg">${w.en} · ${w.stage}</div>
+      <p class="foc">${w.focus}</p>
+      <div class="go">เริ่มผจญภัย →</div>
+    `;
+    b.addEventListener('click', () => selectWorld(w.id));
+    grid.appendChild(b);
+  });
+}
+
+/* =========================================================
+   GAME FLOW
+   ========================================================= */
+function selectWorld(i){
+  ensureAudio();
+  sfx('click');
+  state.world = i;
+  state.qi = 0;
+  state.combo = 0;
+  state.bestCombo = 0;
+  state.lp = 0;
+  state.correct = 0;
+  state.foeHP = 100;
+  state.locked = false;
+  state.answered = false;
+  anim.particles = [];
+  anim.floaters = [];
+  anim.attack = -1;
+  anim.hitFlash = 0;
+  anim.foeShake = 0;
+
+  const w = WORLDS[i];
+  $('battleTitle').textContent = w.name + ' · ' + w.stage;
+  $('foeName').textContent = w.foe;
+  $('hpFoe').style.width = '100%';
+  $('hpLeo').style.width = '100%';
+  updateHUD();
+
+  showScreen('battle');
+  renderQuestion();
+}
+
+function currentQ(){
+  return WORLDS[state.world].qs[state.qi];
+}
+
+function updateHUD(){
+  $('hudQ').textContent = Math.min(state.qi+1, 10);
+  $('hudLP').textContent = state.lp;
+  $('hudCorrect').textContent = state.correct;
+  const c = $('hudCombo');
+  if(state.combo > 1){
+    c.textContent = '🔥 COMBO x' + state.combo;
+    c.classList.add('on');
+  } else {
+    c.classList.remove('on');
+  }
+}
+
+function renderQuestion(){
+  const w = WORLDS[state.world];
+  const q = currentQ();
+  state.locked = false;
+  state.answered = false;
+
+  // hint
+  $('qHint').textContent = q.h + '  —  ' + w.focus;
+
+  // equation with slot
+  const eq = $('equation');
+  const parts = q.q.split('?');
+  eq.innerHTML = '';
+  parts.forEach((p, idx) => {
+    if(p) {
+      // split into tokens preserving spaces
+      const toks = p.split(' ');
+      toks.forEach(t => {
+        if(!t) return;
+        const span = document.createElement('span');
+        if(/^[+\-−×÷=]$/.test(t)) { span.className = 'op'; span.textContent = t; }
+        else { span.className = 'num'; span.textContent = t; }
+        eq.appendChild(span);
+      });
+    }
+    if(idx < parts.length - 1){
+      const slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.id = 'slot';
+      slot.textContent = '?';
+      eq.appendChild(slot);
+    }
+  });
+
+  // tray
+  const tray = $('tray');
+  tray.innerHTML = '<div class="tray-label">ลากการ์ดตัวเลขไปวางในช่อง</div>';
+  const shuffled = q.c.slice().sort(() => Math.random() - 0.5);
+  shuffled.forEach(v => {
+    tray.appendChild(makeCard(v, w.dots && Math.abs(v) <= 20 && Number.isInteger(v)));
+  });
+
+  $('qMsg').textContent = '';
+  $('qMsg').className = 'qmsg';
+}
+
+function makeCard(val, showDots){
+  const el = document.createElement('div');
+  el.className = 'ncard';
+  el.dataset.val = String(val);
+  el.setAttribute('role','button');
+  el.setAttribute('tabindex','0');
+  el.setAttribute('aria-label','การ์ดตัวเลข ' + val);
+
+  let inner = '<span class="cnum">' + val + '</span>';
+  if(showDots){
+    const n = Math.min(Math.round(Number(val)), 20);
+    if(n > 0) inner += '<span class="cdots">' + '●'.repeat(n) + '</span>';
+  }
+  el.innerHTML = inner;
+
+  el.addEventListener('pointerdown', onCardPointerDown);
+  el.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); onCardActivate(el); }
+  });
+  return el;
+}
+
+/* ---------- DRAG & TAP ---------- */
+let activeGhost = null;
+let activeCard = null;
+
+function onCardPointerDown(e){
+  if(state.locked || state.answered) return;
   const el = e.currentTarget;
+  if(!el) return;
   e.preventDefault();
 
-  dragEl = el;
-  const rect = el.getBoundingClientRect();
+  const startX = e.clientX, startY = e.clientY;
+  let moved = false;
+  let ghost = null;
+  activeCard = el;
 
-  ghost = el.cloneNode(true);
-  ghost.classList.add('ghost');
-  ghost.style.width  = rect.width + 'px';
-  ghost.style.height = rect.height + 'px';
-  ghost.style.left   = rect.left + 'px';
-  ghost.style.top    = rect.top + 'px';
-  document.body.appendChild(ghost);
+  const onMove = (ev) => {
+    const dx = ev.clientX - startX;
+    const dy = ev.clientY - startY;
 
-  el.classList.add('dragging');
+    if(!moved && Math.hypot(dx, dy) > 8){
+      moved = true;
+      const r = el.getBoundingClientRect();
+      ghost = el.cloneNode(true);
+      ghost.classList.add('ghost');
+      ghost.style.width = r.width + 'px';
+      ghost.style.height = r.height + 'px';
+      ghost.style.left = r.left + 'px';
+      ghost.style.top = r.top + 'px';
+      document.body.appendChild(ghost);
+      activeGhost = ghost;
+      el.classList.add('dragging');
+    }
+    if(ghost){
+      ev.preventDefault();
+      ghost.style.left = (ev.clientX - ghost.offsetWidth/2) + 'px';
+      ghost.style.top = (ev.clientY - ghost.offsetHeight/2) + 'px';
+      highlightDrop(ev.clientX, ev.clientY);
+    }
+  };
 
-  document.addEventListener('pointermove', onMove, { passive: false });
+  const onUp = (ev) => {
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onUp);
+    clearHighlight();
+
+    if(ghost){
+      ghost.remove();
+      ghost = null;
+      activeGhost = null;
+    }
+    el.classList.remove('dragging');
+    activeCard = null;
+
+    if(moved){
+      const target = document.elementFromPoint(ev.clientX, ev.clientY);
+      const slot = target && target.closest ? target.closest('.slot') : null;
+      if(slot) placeCard(el);
+      else if(el.parentElement && el.parentElement.classList.contains('slot')) returnCard(el);
+    } else {
+      // simple tap
+      onCardActivate(el);
+    }
+  };
+
+  document.addEventListener('pointermove', onMove, {passive:false});
   document.addEventListener('pointerup', onUp);
   document.addEventListener('pointercancel', onUp);
 }
 
-function onMove(e) {
-  if (!ghost) return;
-  e.preventDefault();
-  ghost.style.left = (e.clientX - ghost.offsetWidth / 2) + 'px';
-  ghost.style.top  = (e.clientY - ghost.offsetHeight / 2) + 'px';
-
-  const under = document.elementFromPoint(e.clientX, e.clientY);
-  const box = under && under.closest('.dropbox');
-  boxes.forEach(b => b.classList.toggle('hover', b === box));
-}
-
-function onUp(e) {
-  document.removeEventListener('pointermove', onMove);
-  document.removeEventListener('pointerup', onUp);
-  document.removeEventListener('pointercancel', onUp);
-
-  if (ghost) { ghost.remove(); ghost = null; }
-  if (!dragEl) return;
-
-  dragEl.classList.remove('dragging');
-  boxes.forEach(b => b.classList.remove('hover'));
-
-  const under  = document.elementFromPoint(e.clientX, e.clientY);
-  const box    = under && under.closest('.dropbox');
-  const trayEl = under && under.closest('#tray');
-  const star   = dragEl;
-  dragEl = null;
-
-  if (box) {
-    box.querySelector('.slots').appendChild(star);
-    star.classList.add('placed');
-  } else if (trayEl) {
-    tray.appendChild(star);
-    star.classList.remove('placed');
-  }
-  check();
-}
-
-function check() {
-  const counts = boxes.map(b => b.querySelectorAll('.star').length);
-  const total  = counts.reduce((a, b) => a + b, 0);
-
-  if (total < 5) {
-    setStatus(`วางแล้ว ${total}/5 ดวง`, '');
-    return;
-  }
-
-  const ok = boxes.every((b, i) => counts[i] === Number(b.dataset.need));
-
-  if (ok) {
-    setStatus('✅ ถูกต้อง! 5 = 2 + 3 — Leo ปล่อยพลังธาตุใส่ Rock Golem!', 'ok');
-    battle.classList.add('win');
+function onCardActivate(el){
+  if(state.locked || state.answered) return;
+  if(el.parentElement && el.parentElement.classList.contains('slot')){
+    returnCard(el);
   } else {
-    setStatus('❌ ยังไม่ถูกต้อง — ลองนับจำนวนดาวในแต่ละกล่องอีกครั้ง', 'err');
-    setTimeout(() => {
-      boxes.forEach(b => b.querySelectorAll('.star').forEach(s => {
-        s.classList.remove('placed');
-        tray.appendChild(s);
-      }));
-      setStatus('ลองใหม่อีกครั้ง: ต้องได้ 2 ดวง และ 3 ดวง', '');
-    }, 950);
+    placeCard(el);
   }
 }
 
-resetBtn.addEventListener('click', buildStars);
-buildStars();
+function highlightDrop(x, y){
+  const target = document.elementFromPoint(x, y);
+  const slot = target && target.closest ? target.closest('.slot') : null;
+  document.querySelectorAll('.slot').forEach(s => {
+    s.classList.toggle('hover', s === slot && !s.classList.contains('filled'));
+  });
+}
+function clearHighlight(){
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('hover'));
+}
+
+function placeCard(cardEl){
+  const slot = $('slot');
+  if(!slot) return;
+
+  // if slot occupied, send old card back
+  const existing = slot.querySelector('.ncard');
+  if(existing){
+    existing.classList.remove('in-slot');
+    $('tray').appendChild(existing);
+  }
+
+  cardEl.classList.add('in-slot');
+  slot.textContent = '';
+  slot.appendChild(cardEl);
+  slot.classList.add('filled');
+
+  sfx('place');
+  checkAnswer(Number(cardEl.dataset.val));
+}
+
+function returnCard(cardEl){
+  if(state.locked) return;
+  const slot = $('slot');
+  cardEl.classList.remove('in-slot');
+  $('tray').appendChild(cardEl);
+  if(slot){
+    slot.classList.remove('filled','good','bad');
+    slot.textContent = '?';
+  }
+  $('qMsg').textContent = '';
+  $('qMsg').className = 'qmsg';
+  sfx('click');
+}
+
+/* ---------- ANSWER CHECK ---------- */
+function checkAnswer(val){
+  const q = currentQ();
+  const slot = $('slot');
+  const correct = Math.abs(val - q.a) < 1e-9;
+
+  if(correct){
+    state.locked = true;
+    state.answered = true;
+    slot.classList.add('good');
+    $('qMsg').textContent = '✅ ถูกต้อง! ' + WORLDS[state.world].atk + '!';
+    $('qMsg').className = 'qmsg ok';
+
+    // combo & points
+    state.combo++;
+    if(state.combo > state.bestCombo) state.bestCombo = state.combo;
+    const mult = Math.min(state.combo, 5);
+    const gain = 100 * mult;
+    state.lp += gain;
+    state.correct++;
+
+    // combo pop
+    const cb = $('hudCombo');
+    cb.classList.remove('pop');
+    void cb.offsetWidth;
+    cb.classList.add('pop');
+
+    updateHUD();
+
+    // attack animation
+    anim.attack = 0;
+    setTimeout(() => {
+      spawnFloater(500, 150, '+' + gain + ' LP', '#ffcf5c');
+    }, 380);
+
+    // monster damage
+    setTimeout(() => {
+      state.foeHP = Math.max(0, state.foeHP - 10);
+      $('hpFoe').style.width = state.foeHP + '%';
+    }, 420);
+
+    sfx('good');
+
+    // go to island
+    setTimeout(() => {
+      if(state.foeHP <= 0){
+        sfx('win');
+      }
+      goIsland();
+    }, 1450);
+
+  } else {
+    state.locked = true;
+    slot.classList.add('bad');
+    $('qMsg').textContent = '❌ ยังไม่ใช่ — ลองนับใหม่อีกครั้ง';
+    $('qMsg').className = 'qmsg bad';
+    sfx('bad');
+
+    // leo takes small shake (no real damage)
+    anim.leoShake = 0.8;
+    state.combo = 0;
+    updateHUD();
+
+    setTimeout(() => {
+      const card = slot.querySelector('.ncard');
+      slot.classList.remove('bad','filled','good');
+      slot.textContent = '?';
+      if(card){
+        card.classList.remove('in-slot');
+        $('tray').appendChild(card);
+      }
+      $('qMsg').textContent = '';
+      $('qMsg').className = 'qmsg';
+      state.locked = false;
+    }, 1000);
+  }
+}
+
+/* ---------- ISLAND ---------- */
+function goIsland(){
+  state.islandTaps = 0;
+  state.hatched = false;
+  updateEggBar();
+  $('islandNext').style.display = 'none';
+  $('islandTitle').textContent = '🏝️ เกาะพักสายตาลีโอ';
+  $('islandSub').textContent = 'ตอบถูก! รับ 1 เหรียญทอง — แตะที่ไข่ 3 ครั้งเพื่อฟักสัตว์วิเศษ';
+  sfx('coin');
+  showScreen('island');
+  iTime = 0;
+}
+
+function updateEggBar(){
+  const bars = $('eggBar').children;
+  for(let i=0;i<bars.length;i++){
+    bars[i].classList.toggle('on', i < state.islandTaps);
+  }
+}
+
+function tapIslandEgg(){
+  if(state.hatched) return;
+  ensureAudio();
+  state.islandTaps++;
+  if(state.islandTaps > 3) state.islandTaps = 3;
+  updateEggBar();
+
+  if(state.islandTaps === 1){ tone(500,.08,'square',.10); }
+  else if(state.islandTaps === 2){ tone(600,.08,'square',.10); }
+  else if(state.islandTaps === 3){
+    sfx('hatch');
+    state.hatched = true;
+    $('islandSub').textContent = '🎉 สัตว์วิเศษฟักออกมาแล้ว! มันเดินเล่นอยู่บนเกาะ';
+    $('islandNext').style.display = '';
+    // confetti
+    for(let i=0;i<3;i++){
+      setTimeout(() => {
+        spawnBurst(380 + (Math.random()-0.5)*160, 200 + (Math.random()-0.5)*60, WORLDS[state.world].color, 22);
+      }, i*180);
+    }
+  }
+}
+
+function nextQuestionFromIsland(){
+  sfx('click');
+  state.qi++;
+
+  if(state.qi >= 10){
+    showSummary();
+  } else {
+    // reset island burst particles for battle reuse
+    anim.particles = [];
+    anim.floaters = [];
+    showScreen('battle');
+    updateHUD();
+    renderQuestion();
+  }
+}
+
+/* ---------- SUMMARY ---------- */
+function showSummary(){
+  const w = WORLDS[state.world];
+  const acc = Math.round((state.correct / 10) * 100);
+
+  $('sumIcon').textContent = state.correct >= 8 ? '🏆' : state.correct >= 5 ? '🎖️' : '💪';
+  $('sumTitle').textContent = state.correct >= 8 ? 'พิชิตด่านสำเร็จ!' : state.correct >= 5 ? 'ผ่านด่านได้ดี!' : 'สู้ต่อไปนะ!';
+  $('sumSub').textContent = w.name + ' · ' + w.stage;
+
+  $('sumScore').textContent = state.correct + '/10';
+  $('sumAcc').textContent = acc + '%';
+  $('sumLP').textContent = state.lp.toLocaleString();
+  $('sumCombo').textContent = 'x' + state.bestCombo;
+
+  // voucher: up to 500 THB, scaled by score
+  const voucher = Math.round((state.correct / 10) * 500 / 50) * 50;
+  const code = 'LEO-500-' + Math.random().toString(16).slice(2,6).toUpperCase();
+  state.voucher = voucher;
+  state.voucherCode = code;
+
+  $('sumVoucherAmt').textContent = voucher + ' บาท';
+  $('sumVoucherCode').textContent = code;
+
+  sfx('win');
+  showScreen('summary');
+}
+
+/* ---------- LINE REPORT ---------- */
+function buildReport(){
+  const w = WORLDS[state.world];
+  const acc = Math.round((state.correct / 10) * 100);
+
+  let wm, vis, igcse;
+  if(acc >= 90){ wm = 'ยอดเยี่ยม (Excellent)'; vis = 'ยอดเยี่ยม'; igcse = 'ระดับ A — พร้อมต่อยอด'; }
+  else if(acc >= 70){ wm = 'ดีมาก (Very Good)'; vis = 'ดีมาก'; igcse = 'ระดับ B — แข็งแรงดี'; }
+  else if(acc >= 50){ wm = 'ปานกลาง (Fair)'; vis = 'ปานกลาง'; igcse = 'ระดับ C — ควรฝึกเพิ่ม'; }
+  else { wm = 'ต้องเสริม (Needs Support)'; vis = 'ต้องเสริม'; igcse = 'ระดับ D — ควรทบทวนพื้นฐาน'; }
+
+  return `🦁 Leo's Math Quest — Progress Report
+═══════════════════════
+📘 ด่าน: ${w.name} (${w.en})
+🎓 ระดับ: ${w.stage}
+📅 วันที่: ${new Date().toLocaleDateString('th-TH', {year:'numeric',month:'long',day:'numeric'})}
+
+✅ ตอบถูก: ${state.correct}/10 ข้อ
+🎯 ความแม่นยำ: ${acc}%
+⭐ คะแนนสิงโต: ${state.lp.toLocaleString()} LP
+🔥 คอมโบสูงสุด: x${state.bestCombo}
+
+📊 วิเคราะห์สมรรถนะสมอง
+• Working Memory: ${wm}
+• ภาพเชิงมโนทัศน์ (Visual-Spatial): ${vis}
+• ความพร้อม IGCSE: ${igcse}
+
+🎟️ รหัสทุนการศึกษา: ${state.voucherCode}
+💰 มูลค่า: ${state.voucher} บาท
+(ยื่นรับสิทธิ์ได้ที่สถาบันที่ร่วมโครงการ)
+
+─────────────────────
+พัฒนาการเรียนรู้ผ่านกลไก DragonBox Tactile,
+Prodigy Battle Canvas และ MathTango Eye-Rest Island`;
+}
+
+function sendLineVoucher(){
+  ensureAudio();
+  sfx('click');
+  const text = buildReport();
+  $('reportText').textContent = text;
+  $('modal').classList.add('on');
+
+  $('lineOpen').onclick = () => {
+    const url = 'https://line.me/R/msg/text/?' + encodeURIComponent(text);
+    window.open(url, '_blank', 'noopener');
+  };
+  $('copyBtn').onclick = () => {
+    const done = () => {
+      $('copyBtn').textContent = '✓ คัดลอกแล้ว';
+      setTimeout(() => { $('copyBtn').textContent = 'คัดลอกข้อความ'; }, 1600);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
+  };
+}
+
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta);
+  if(cb) cb();
+}
+
+function closeModal(){
+  $('modal').classList.remove('on');
+}
+
+/* ---------- RESET ---------- */
+function restartAll(){
+  sfx('click');
+  closeModal();
+  state.world = 0;
+  state.qi = 0;
+  state.combo = 0;
+  state.bestCombo = 0;
+  state.lp = 0;
+  state.correct = 0;
+  state.foeHP = 100;
+  state.islandTaps = 0;
+  state.hatched = false;
+  anim.particles = [];
+  anim.floaters = [];
+  anim.attack = -1;
+  showScreen('title');
+}
 
 /* =========================================================
-   3) SCROLL REVEAL
+   EVENT BINDINGS
    ========================================================= */
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(en => {
-    if (en.isIntersecting) {
-      en.target.classList.add('in');
-      io.unobserve(en.target);
-    }
-  });
-}, { threshold: 0.12 });
+// Island canvas tap
+cvIsland.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  tapIslandEgg();
+});
 
-document.querySelectorAll('.reveal').forEach((el, i) => {
-  el.style.transitionDelay = (i % 4) * 70 + 'ms';
-  io.observe(el);
+// Prevent page scroll during drag on the tray
+$('tray').addEventListener('touchmove', e => {
+  if(activeCard) e.preventDefault();
+}, {passive:false});
+
+// Modal backdrop click
+$('modal').addEventListener('click', e => {
+  if(e.target === $('modal')) closeModal();
+});
+
+// Keyboard shortcut: Escape closes modal
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeModal();
+});
+
+/* =========================================================
+   EXPOSE GLOBALS (for inline onclick + external calls)
+   ========================================================= */
+window.selectWorld = selectWorld;
+window.onCardClicked = onCardActivate;
+window.tapIslandEgg = tapIslandEgg;
+window.nextQuestionFromIsland = nextQuestionFromIsland;
+window.sendLineVoucher = sendLineVoucher;
+window.restartAll = restartAll;
+window.closeModal = closeModal;
+
+/* =========================================================
+   INIT
+   ========================================================= */
+renderWorlds();
+showScreen('title');
+lastTs = performance.now();
+
+// Unlock audio on first interaction
+['pointerdown','keydown','touchstart'].forEach(evt => {
+  window.addEventListener(evt, function once(){
+    ensureAudio();
+    window.removeEventListener(evt, once);
+  }, {once:true, passive:true});
 });
 </script>
 </body>
