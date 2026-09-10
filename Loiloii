@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>➕✨ คณิตคิดเร็ว: ผจญภัยรายวัน</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --hp:70%; --timer:100%;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  font-family:'Kanit',sans-serif;
+  min-height:100vh; overflow-x:hidden;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  transition:background 1.2s ease;
+  color:#fff;
+}
+/* ---------- SCENES (เปลี่ยนทุก 3 ข้อ) ---------- */
+.scene-0{background:linear-gradient(160deg,#4facfe 0%,#00f2fe 100%);}   /* ท้องฟ้า */
+.scene-1{background:linear-gradient(160deg,#43e97b 0%,#38f9d7 100%);}   /* ป่าไม้ */
+.scene-2{background:linear-gradient(160deg,#1a2980 0%,#26d0ce 100%);}   /* ทะเล */
+.scene-3{background:linear-gradient(160deg,#0f0c29 0%,#302b63 60%,#24243e 100%);} /* อวกาศ */
+/* ---------- STREAK HEAT (เหลือง→ส้ม→แดง→ม่วง/ฟ้า) ---------- */
+.heat-1{background:linear-gradient(160deg,#ffe259 0%,#ffa751 100%)!important;}
+.heat-2{background:linear-gradient(160deg,#ffa751 0%,#ff512f 100%)!important;}
+.heat-3{background:linear-gradient(160deg,#ff512f 0%,#dd2476 100%)!important;}
+.heat-4{background:linear-gradient(160deg,#8e2de2 0%,#4a00e0 50%,#00c6fb 100%)!important;animation:heatPulse 2s ease-in-out infinite;}
+@keyframes heatPulse{0%,100%{filter:saturate(1);}50%{filter:saturate(1.6) brightness(1.1);}}
+
+#app{max-width:520px;margin:0 auto;padding:16px;position:relative;min-height:100vh;}
+#app.shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97);}
+@keyframes shake{
+  10%,90%{transform:translate(-2px,0);}
+  20%,80%{transform:translate(4px,2px);}
+  30%,50%,70%{transform:translate(-7px,-3px);}
+  40%,60%{transform:translate(7px,3px);}
+}
+.screen{display:none;flex-direction:column;align-items:center;gap:14px;animation:popIn .45s cubic-bezier(.68,-0.55,.27,1.55);}
+.screen.active{display:flex;}
+@keyframes popIn{0%{transform:scale(.7);opacity:0;}100%{transform:scale(1);opacity:1;}}
+@keyframes bounceIn{0%{transform:scale(0) rotate(-15deg);opacity:0;}60%{transform:scale(1.15) rotate(5deg);}100%{transform:scale(1) rotate(0);}}
+@keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes wiggle{0%,100%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}}
+
+.deco{position:fixed;font-size:34px;opacity:.55;pointer-events:none;animation:floaty 4s ease-in-out infinite;z-index:0;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));}
+h1{font-size:2rem;font-weight:800;text-shadow:0 3px 0 rgba(0,0,0,.25);text-align:center;animation:bounceIn .6s;}
+.subtitle{font-size:1rem;opacity:.95;text-align:center;margin-top:-8px;}
+
+.card{
+  background:rgba(255,255,255,.16);backdrop-filter:blur(14px);
+  border:2px solid rgba(255,255,255,.35);border-radius:24px;
+  padding:18px;width:100%;box-shadow:0 12px 32px rgba(0,0,0,.25);
+}
+.btn{
+  font-family:'Kanit';font-size:1.15rem;font-weight:800;color:#fff;
+  border:none;border-radius:18px;padding:14px 22px;cursor:pointer;width:100%;
+  background:linear-gradient(135deg,#f6d365 0%,#fda085 100%);
+  box-shadow:0 6px 0 rgba(0,0,0,.22),0 10px 22px rgba(0,0,0,.25);
+  transition:transform .12s, box-shadow .12s;position:relative;overflow:hidden;
+}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.22);}
+.btn.blue{background:linear-gradient(135deg,#6dd5fa 0%,#2980d9 100%);}
+.btn.green{background:linear-gradient(135deg,#84fab0 0%,#00c853 100%);}
+.btn.pink{background:linear-gradient(135deg,#ff9a9e 0%,#ee0979 100%);}
+.btn.purple{background:linear-gradient(135deg,#a18cd1 0%,#6a11cb 100%);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn.pop{animation:bounceIn .4s backwards;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;}
+
+.mascot{font-size:72px;text-align:center;animation:floaty 3s ease-in-out infinite;cursor:pointer;user-select:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3));transition:transform .2s;}
+.mascot.celebrate{animation:bounceIn .5s 3;}
+.mascot.hurt{animation:wiggle .4s 2;}
+
+.topbar{display:flex;justify-content:space-between;width:100%;align-items:center;font-weight:800;font-size:1.05rem;z-index:2;}
+.pill{background:rgba(0,0,0,.28);border-radius:999px;padding:6px 14px;border:2px solid rgba(255,255,255,.3);}
+
+/* HP + Timer */
+.meter-wrap{width:100%;z-index:2;}
+.meter{height:22px;background:rgba(0,0,0,.35);border-radius:999px;overflow:hidden;border:2px solid rgba(255,255,255,.4);margin-bottom:8px;position:relative;}
+.meter .fill{height:100%;border-radius:999px;transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+#hpFill{background:linear-gradient(90deg,#ff416c,#ff4b2b,#ff9966);}
+#hpFill.up{animation:hpUp .5s;}
+@keyframes hpUp{0%{filter:brightness(2);}100%{filter:brightness(1);}}
+#timerFill{background:linear-gradient(90deg,#56ab2f,#a8e063);}
+.meter label{font-size:.85rem;font-weight:600;opacity:.9;display:flex;justify-content:space-between;}
+
+.qcard{width:100%;text-align:center;z-index:2;}
+.q-emoji{font-size:1.6rem;letter-spacing:2px;word-break:break-word;line-height:1.5;margin:6px 0;min-height:40px;}
+.q-text{font-size:2.2rem;font-weight:800;text-shadow:0 3px 0 rgba(0,0,0,.25);animation:popIn .4s;}
+.streak-tag{font-size:1rem;font-weight:800;background:linear-gradient(135deg,#f83600,#f9d423);border-radius:999px;padding:4px 16px;display:inline-block;margin-top:6px;box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;z-index:2;}
+.ans-btn{animation:bounceIn .35s backwards;}
+
+.feedback{font-size:1.5rem;font-weight:800;min-height:40px;z-index:2;text-shadow:0 2px 6px rgba(0,0,0,.4);}
+
+/* อนุภาคอิโมจี */
+.particle{position:fixed;font-size:26px;pointer-events:none;z-index:99;animation:burst .9s ease-out forwards;}
+@keyframes burst{
+  0%{transform:translate(0,0) scale(.4) rotate(0);opacity:1;}
+  100%{transform:translate(var(--dx),var(--dy)) scale(1.4) rotate(var(--rot));opacity:0;}
+}
+/* คอนเฟตตี้ */
+.confetti{position:fixed;top:-40px;font-size:24px;pointer-events:none;z-index:98;animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.6;}}
+
+.stars-row{font-size:2.6rem;display:flex;gap:8px;justify-content:center;}
+.star{opacity:.25;transform:scale(.6);display:inline-block;}
+.star.lit{opacity:1;animation:bounceIn .5s forwards;text-shadow:0 0 18px gold;}
+
+table{width:100%;border-collapse:collapse;font-size:.95rem;}
+th,td{padding:8px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.2);}
+th{font-weight:800;background:rgba(0,0,0,.18);}
+.tier-row.reached{background:rgba(255,215,0,.18);}
+.progress-outer{height:18px;background:rgba(0,0,0,.3);border-radius:999px;overflow:hidden;border:2px solid rgba(255,255,255,.35);}
+.progress-inner{height:100%;background:linear-gradient(90deg,#f83600,#f9d423);border-radius:999px;transition:width .8s cubic-bezier(.34,1.56,.64,1);}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;width:100%;}
+.cal-cell{aspect-ratio:1;border-radius:10px;background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:1px solid rgba(255,255,255,.2);}
+.cal-cell.done{background:linear-gradient(135deg,#f6d365,#fda085);box-shadow:0 0 10px rgba(255,200,80,.6);}
+.cal-cell.today{outline:3px solid #fff;}
+
+.reward-box{font-size:64px;text-align:center;cursor:pointer;animation:wiggle 1.2s infinite;user-select:none;}
+.mission{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.2);margin-bottom:8px;}
+.mission .icon{font-size:1.6rem;}
+.mission .bar{flex:1;}
+.mission small{opacity:.85;}
+.code-box{font-family:monospace;font-size:1.3rem;background:#1b1b2f;border:2px dashed #ffd54f;border-radius:12px;padding:10px;text-align:center;letter-spacing:2px;color:#ffd54f;}
+.history-item{font-size:.9rem;}
+.badge{font-size:.75rem;background:#ffd54f;color:#5d4037;border-radius:999px;padding:2px 10px;font-weight:800;}
+.back-link{align-self:flex-start;background:none;border:none;color:#fff;font-size:1rem;cursor:pointer;font-family:'Kanit';opacity:.85;padding:4px;}
+</style>
+</head>
+<body class="scene-0">
+<div id="app">
+
+  <!-- ================= HOME ================= -->
+  <div class="screen active" id="scr-home">
+    <div class="mascot" id="mascotHome">🦊</div>
+    <h1>คณิตคิดเร็ว ⚡</h1>
+    <p class="subtitle">ผจญภัยรายวัน · สะสมดาว แลกส่วนลด!</p>
+    <div class="pill">💰 แต้มสะสม: <b id="homePoints">0</b></div>
+    <div class="card"><b style="font-size:1.1rem;">🎒 เลือกชั้นเรียน</b>
+      <div class="grid2" style="margin-top:10px;" id="gradeGrid"></div>
+    </div>
+    <button class="btn green pop" onclick="go('scr-daily')">🗓️ ผจญภัยรายวัน</button>
+    <div class="grid2">
+      <button class="btn blue pop" onclick="go('scr-redeem')">🏆 แลกส่วนลด</button>
+      <button class="btn purple pop" onclick="go('scr-history')">📊 ประวัติการเล่น</button>
+    </div>
+  </div>
+
+  <!-- ================= GAME ================= -->
+  <div class="screen" id="scr-game">
+    <div class="topbar">
+      <span class="pill">ข้อ <b id="qNum">1</b>/10</span>
+      <span class="pill">🔥 สตรีค <b id="streakNum">0</b></span>
+      <span class="pill">✅ <b id="scoreNum">0</b></span>
+    </div>
+    <div class="meter-wrap">
+      <div class="meter"><div class="fill" id="hpFill" style="width:70%"></div></div>
+      <div class="meter"><div class="fill" id="timerFill" style="width:100%"></div></div>
+    </div>
+    <div class="mascot" id="mascotGame" style="font-size:54px;">🐼</div>
+    <div class="card qcard">
+      <div class="q-emoji" id="qEmoji"></div>
+      <div class="q-text" id="qText">3 + 2 = ?</div>
+      <div class="streak-tag" id="streakTag" style="display:none;">🔥 COMBO x3</div>
+    </div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- ================= RESULT ================= -->
+  <div class="screen" id="scr-result">
+    <h1 id="resultTitle">จบด่าน!</h1>
+    <div class="stars-row" id="starsRow"></div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.2rem;">ถูก <b id="rCorrect">0</b>/10 ข้อ · ใช้เวลา <b id="rTime">0</b> วินาที</p>
+      <p style="font-size:1.4rem;margin-top:6px;">💰 ได้แต้ม <b id="rPoints" style="color:#ffd54f;">+0</b></p>
+      <p style="font-size:1.05rem;margin-top:4px;">แต้มรวมสะสม: <b id="rTotal">0</b></p>
+    </div>
+    <button class="btn green pop" onclick="startGame(lastGrade)">🔁 เล่นอีกครั้ง</button>
+    <button class="btn blue pop" onclick="goHome()">🏠 กลับหน้าหลัก</button>
+  </div>
+
+  <!-- ================= DAILY ================= -->
+  <div class="screen" id="scr-daily">
+    <button class="back-link" onclick="goHome()">← กลับ</button>
+    <h1>🗓️ ผจญภัยรายวัน</h1>
+    <div class="pill">🔥 เล่นต่อเนื่อง <b id="dayStreak">0</b> วัน</div>
+    <div class="card"><b>📜 ภารกิจวันนี้</b><div id="missionList" style="margin-top:8px;"></div></div>
+    <div class="card" style="text-align:center;">
+      <b>🎁 กล่องสุ่มรางวัล</b>
+      <div id="rewardArea" style="margin-top:8px;">
+        <div class="reward-box" id="rewardBox" onclick="claimReward()">🎁</div>
+        <p style="opacity:.85;font-size:.9rem;">ทำครบ 3 ภารกิจแล้วแตะเพื่อเปิด!</p>
+      </div>
+    </div>
+    <div class="card"><b>📅 ปฏิทินสะสม</b>
+      <div class="cal-grid" id="calGrid" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- ================= REDEEM ================= -->
+  <div class="screen" id="scr-redeem">
+    <button class="back-link" onclick="goHome()">← กลับ</button>
+    <h1>🏆 แลกส่วนลด</h1>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.1rem;">💰 แต้มรวมของคุณ</p>
+      <p style="font-size:2.6rem;font-weight:800;color:#ffd54f;" id="redeemPoints">0</p>
+      <div class="progress-outer"><div class="progress-inner" id="redeemProgress" style="width:0%"></div></div>
+      <p style="font-size:.9rem;opacity:.9;margin-top:4px;" id="nextTierText"></p>
+    </div>
+    <div class="card"><b>🪜 ขั้นบันไดส่วนลด</b>
+      <table id="tierTable" style="margin-top:8px;">
+        <tr><th>แต้ม</th><th>ส่วนลด</th><th></th></tr>
+      </table>
+    </div>
+    <div id="codeArea" style="width:100%;"></div>
+  </div>
+
+  <!-- ================= HISTORY ================= -->
+  <div class="screen" id="scr-history">
+    <button class="back-link" onclick="goHome()">← กลับ</button>
+    <h1>📊 ประวัติการเล่น</h1>
+    <div class="card" style="padding:8px;">
+      <table>
+        <tr><th>วันที่</th><th>ชั้น</th><th>ถูก</th><th>เวลา(วิ)</th></tr>
+        <tbody id="historyBody"></tbody>
+      </table>
+      <p id="historyEmpty" style="text-align:center;opacity:.8;padding:14px;">ยังไม่มีประวัติ — ไปเล่นกันเลย!</p>
+    </div>
+    <button class="btn pink pop" onclick="if(confirm('ล้างประวัติทั้งหมด?')){localStorage.removeItem('mq_history');renderHistory();}">🗑️ ล้างประวัติ</button>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   🎵 AUDIO ENGINE — Web Audio API ล้วนๆ ไม่มีไฟล์เสียง
+============================================================ */
+let actx=null;
+function AC(){ if(!actx){ actx=new (window.AudioContext||window.webkitAudioContext)(); } if(actx.state==='suspended')actx.resume(); return actx; }
+function tone(freq,dur,type,vol,when=0,slideTo=null){
+  const a=AC(),t=a.currentTime+when;
+  const o=a.createOscillator(),g=a.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(freq,t);
+  if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t+dur);
+  g.gain.setValueAtTime(vol||.18,t);
+  g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t+dur+.02);
+}
+const sfx={
+  click(){tone(700,.06,'square',.12);},
+  correct(streak){ // อลังการขึ้นตามสตรีค
+    const base=[523,659,784,1047];
+    base.forEach((f,i)=>tone(f+i*Math.min(streak,6)*12,.16,'triangle',.2,i*.07));
+    if(streak>=3)tone(1568,.3,'sine',.15,.3); // โน้ตสูงประกาย
+  },
+  wrong(){tone(220,.28,'sawtooth',.2,0,110);tone(160,.28,'square',.12,.05,90);},
+  timeout(){tone(300,.15,'square',.16,0);tone(200,.3,'square',.16,.16,120);},
+  coin(){tone(987,.08,'square',.15);tone(1319,.28,'square',.15,.08);}, // เสียงเหรียญ
+  fanfare(){[523,659,784,659,784,1047].forEach((f,i)=>tone(f,.18,'triangle',.22,i*.12));tone(1319,.5,'sine',.18,.75);},
+  heartbeat(){tone(80,.1,'sine',.3);tone(80,.1,'sine',.3,.18);},
+  pop(){tone(880,.05,'sine',.1);}
+};
+document.addEventListener('pointerdown',()=>AC(),{once:true});
+
+/* ============================================================
+   💾 STORAGE — แต้ม / ประวัติ / สตรีครายวัน
+============================================================ */
+const store={
+  get points(){return +localStorage.getItem('mq_points')||0;},
+  set points(v){localStorage.setItem('mq_points',v);},
+  get history(){return JSON.parse(localStorage.getItem('mq_history')||'[]');},
+  set history(v){localStorage.setItem('mq_history',JSON.stringify(v));},
+  get days(){return JSON.parse(localStorage.getItem('mq_days')||'[]');},
+  set days(v){localStorage.setItem('mq_days',JSON.stringify(v));},
+  getDaily(){return JSON.parse(localStorage.getItem('mq_daily')||'null');},
+  setDaily(v){localStorage.setItem('mq_daily',JSON.stringify(v));},
+  getRedeemed(){return JSON.parse(localStorage.getItem('mq_redeemed')||'[]');},
+  setRedeemed(v){localStorage.setItem('mq_redeemed',JSON.stringify(v));}
+};
+function todayKey(offset=0){const d=new Date();d.setDate(d.getDate()+offset);return d.toISOString().slice(0,10);}
+function fmtDate(k){const p=k.split('-');return `${+p[2]}/${+p[1]}/${p[0].slice(2)}`;}
+
+/* ============================================================
+   🎬 NAVIGATION + ฉาก (เปลี่ยนทุก 3 ข้อ) + HEAT
+============================================================ */
+const scenes=[{e:['☁️','🌈','🦅','🎈']},{e:['🌲','🦋','🍄','🌸']},{e:['🌊','🐠','🐬','🏝️']},{e:['🚀','⭐','🪐','👽']}];
+function clearDeco(){document.querySelectorAll('.deco').forEach(d=>d.remove());}
+function setScene(i){
+  document.body.className='scene-'+(i%4);
+  clearDeco();
+  scenes[i%4].e.forEach((emo,k)=>{
+    const s=document.createElement('span');s.className='deco';s.textContent=emo;
+    s.style.left=(5+Math.random()*85)+'vw';s.style.top=(8+Math.random()*80)+'vh';
+    s.style.animationDelay=(k*.6)+'s';s.style.fontSize=(26+Math.random()*22)+'px';
+    document.body.appendChild(s);
+  });
+}
+function setHeat(streak){ // เหลือง→ส้ม→แดง→ม่วง/ฟ้า ตามคอมโบ
+  document.body.classList.remove('heat-1','heat-2','heat-3','heat-4');
+  if(streak>=8)document.body.classList.add('heat-4');
+  else if(streak>=6)document.body.classList.add('heat-3');
+  else if(streak>=4)document.body.classList.add('heat-2');
+  else if(streak>=2)document.body.classList.add('heat-1');
+}
+function go(id){sfx.click();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function goHome(){setScene(0);refreshHome();go('scr-home');}
+
+/* ============================================================
+   ✨ อนุภาคอิโมจี + 🎊 คอนเฟตตี้ + 📳 SHAKE
+============================================================ */
+function burst(el,emojis,count){
+  const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  for(let i=0;i<count;i++){
+    const p=document.createElement('span');p.className='particle';
+    p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    const ang=Math.random()*Math.PI*2,dist=70+Math.random()*130;
+    p.style.left=cx+'px';p.style.top=cy+'px';
+    p.style.setProperty('--dx',Math.cos(ang)*dist+'px');
+    p.style.setProperty('--dy',(Math.sin(ang)*dist-60)+'px');
+    p.style.setProperty('--rot',(Math.random()*720-360)+'deg');
+    p.style.fontSize=(18+Math.random()*18)+'px';
+    document.body.appendChild(p);setTimeout(()=>p.remove(),950);
+  }
+}
+function confetti(n=60){
+  const em=['🎉','🎊','⭐','✨','🌟','💛','🧡','💜'];
+  for(let i=0;i<n;i++){
+    const c=document.createElement('span');c.className='confetti';
+    c.textContent=em[Math.floor(Math.random()*em.length)];
+    c.style.left=Math.random()*100+'vw';
+    c.style.animationDuration=(2+Math.random()*2)+'s';
+    c.style.animationDelay=(Math.random()*.8)+'s';
+    c.style.fontSize=(16+Math.random()*20)+'px';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),4500);
+  }
+}
+function shake(){const a=document.getElementById('app');a.classList.remove('shake');void a.offsetWidth;a.classList.add('shake');}
+
+/* ============================================================
+   🧠 QUESTION GENERATOR (ป.1 ใช้ 🍎🍊 นับผลไม้)
+============================================================ */
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const FRUITS=['🍎','🍊','🍓','🍇','🍉','🍑'];
+function genQuestion(g){
+  if(g===1){ // ป.1: บวกไม่เกิน 10 ต่อฝั่ง + อิโมจิผลไม้ช่วยนับ
+    const a=rand(1,10),b=rand(1,10);
+    const f1=FRUITS[rand(0,2)],f2=FRUITS[rand(3,5)];
+    return{emoji:(`${f1.repeat(a)} + ${f2.repeat(b)}`),text:`${a} + ${b} = ?`,ans:a+b};
+  }
+  if(g===2){const a=rand(11,99),b=rand(11,99),sub=Math.random()<.5;
+    if(sub&&a>b)return{text:`${a} − ${b} = ?`,ans:a-b};
+    return{text:`${a} + ${b} = ?`,ans:a+b};}
+  if(g===3){const m=Math.random()<.5;
+    if(m){const a=rand(2,12),b=rand(2,9);return{text:`${a} × ${b} = ?`,ans:a*b};}
+    const b=rand(2,9),ans=rand(2,12);return{text:`${b*ans} ÷ ${b} = ?`,ans};}
+  if(g===4){const m=Math.random()<.6;
+    if(m){const a=rand(12,99),b=rand(3,12);return{text:`${a} × ${b} = ?`,ans:a*b};}
+    const b=rand(3,12),ans=rand(3,25);return{text:`${b*ans} ÷ ${b} = ?`,ans};}
+  if(g===5){ // ทศนิยม + เศษส่วนง่าย
+    if(Math.random()<.5){const a=rand(11,99)/10,b=rand(11,99)/10;return{text:`${a.toFixed(1)} + ${b.toFixed(1)} = ?`,ans:+(a+b).toFixed(1)};}
+    const a=rand(2,9),b=rand(2,9);return{text:`${a}/${b} ของ ${a*b} = ?`,ans:a};}
+  // ป.6: เปอร์เซ็นต์ + เลขยกกำลัง
+  if(Math.random()<.5){const p=[10,20,25,50,75][rand(0,4)],n=[40,60,80,120,200][rand(0,4)];return{text:`${p}% ของ ${n} = ?`,ans:p*n/100};}
+  const a=rand(2,12),b=rand(2,3);return{text:`${a}²${b===3?' × '+a:''} = ?`,ans:Math.pow(a,b)};
+}
+function makeOptions(ans){
+  const set=new Set([ans]);let guard=0;
+  while(set.size<4&&guard++<200){
+    const d=ans+(Math.random()<.5?-1:1)*rand(1,Math.max(3,Math.round(Math.abs(ans)*.3)));
+    if(d>=0&&!set.has(d))set.add(d);
+  }
+  while(set.size<4)set.add(ans+set.size*3+1);
+  return [...set].sort(()=>Math.random()-.5);
+}
+
+/* ============================================================
+   🎮 GAME STATE
+============================================================ */
+let G={};
+let lastGrade=1;
+const TOTAL_Q=10,TIME_PER_Q=15;
+const grades=[1,2,3,4,5,6];
+
+function buildGradeGrid(){
+  const grid=document.getElementById('gradeGrid');grid.innerHTML='';
+  grades.forEach((g,i)=>{
+    const b=document.createElement('button');
+    b.className='btn '+(g===1?'pink':g<=3?'blue':'purple')+' pop';
+    b.style.animationDelay=(i*.06)+'s';
+    b.textContent='ป.'+g;
+    b.onclick=()=>startGame(g);
+    grid.appendChild(b);
+  });
+}
+function startGame(grade){
+  sfx.click();
+  lastGrade=grade;
+  G={grade,q:0,correct:0,streak:0,bestStreak:0,hp:70,points:0,start:Date.now(),over:false,timerId:null};
+  go('scr-game');setScene(0);setHeat(0);
+  document.getElementById('mascotGame').textContent='🐼';
+  nextQuestion();
+}
+function nextQuestion(){
+  if(G.q>=TOTAL_Q||G.hp<=0)return endGame();
+  setScene(Math.floor(G.q/3)); // 🌈 เปลี่ยนฉากทุก 3 ข้อ
+  const q=genQuestion(G.grade);
+  G.cur=q;G.answered=false;
+  document.getElementById('qNum').textContent=G.q+1;
+  document.getElementById('qEmoji').textContent=q.emoji||'';
+  const qt=document.getElementById('qText');qt.textContent=q.text;
+  qt.style.animation='none';void qt.offsetWidth;qt.style.animation=''; // pop-in โจทย์
+  renderAnswers(q);
+  startTimer();
+}
+function renderAnswers(q){
+  const box=document.getElementById('answers');box.innerHTML='';
+  makeOptions(q.ans).forEach((v,i)=>{
+    const b=document.createElement('button');
+    b.className='btn ans-btn pop';b.style.animationDelay=(i*.07)+'s';
+    b.textContent=v;b.onclick=()=>answer(b,v);
+    box.appendChild(b);
+  });
+}
+function startTimer(){
+  clearInterval(G.timerId);G.timeLeft=TIME_PER_Q;
+  const fill=document.getElementById('timerFill');
+  fill.style.width='100%';
+  G.timerId=setInterval(()=>{
+    G.timeLeft-=.1;
+    fill.style.width=Math.max(0,G.timeLeft/TIME_PER_Q*100)+'%';
+    if(G.timeLeft<=0){clearInterval(G.timerId);onTimeout();}
+  },100);
+}
+function setHp(v){
+  G.hp=Math.max(0,Math.min(100,v));
+  const f=document.getElementById('hpFill');
+  f.style.width=G.hp+'%';
+  f.classList.remove('up');void f.offsetWidth;f.classList.add('up');
+  if(G.hp<=20)sfx.heartbeat();
+}
+function answer(btn,v){
+  if(G.answered)return;G.answered=true;clearInterval(G.timerId);
+  const ok=v===G.cur.ans;
+  if(ok){
+    G.correct++;G.streak++;G.bestStreak=Math.max(G.bestStreak,G.streak);
+    const gain=10+G.streak*2;G.points+=gain;
+    setHp(G.hp+10);
+    sfx.correct(G.streak);
+    burst(btn,['⭐','✨','🔥','🌟','💫'],Math.min(6+G.streak*4,34)); // มากขึ้นตามสตรีค
+    const m=document.getElementById('mascotGame');m.textContent='🥳';m.classList.remove('celebrate');void m.offsetWidth;m.classList.add('celebrate');
+    showFeedback(`✅ ถูกต้อง! +${gain} แต้ม`,'#7CFC98');
+  }else{
+    G.streak=0;setHp(G.hp-15);
+    sfx.wrong();shake(); // 📳
+    btn.style.background='linear-gradient(135deg,#ff416c,#ff4b2b)';
+    const m=document.getElementById('mascotGame');m.textContent='😵';m.classList.remove('hurt');void m.offsetWidth;m.classList.add('hurt');
+    showFeedback(`❌ ยังไม่ใช่! คำตอบคือ ${G.cur.ans}`,'#ffb3b3');
+  }
+  setHeat(G.streak); // 🌈 ไล่เฉดตามคอมโบ
+  document.getElementById('streakNum').textContent=G.streak;
+  document.getElementById('scoreNum').textContent=G.correct;
+  const tag=document.getElementById('streakTag');
+  if(G.streak>=3){tag.style.display='inline-block';tag.textContent='🔥 COMBO x'+G.streak;}
+  else tag.style.display='none';
+  G.q++;
+  setTimeout(nextQuestion,1100);
+}
+function onTimeout(){
+  if(G.answered)return;G.answered=true;
+  G.streak=0;setHp(G.hp-15);
+  sfx.timeout();shake();
+  const m=document.getElementById('mascotGame');m.textContent='😱';
+  showFeedback(`⏰ หมดเวลา! คำตอบคือ ${G.cur.ans}`,'#ffd54f');
+  setHeat(0);
+  document.getElementById('streakNum').textContent=0;
+  document.getElementById('streakTag').style.display='none';
+  G.q++;
+  setTimeout(nextQuestion,1300);
+}
+function showFeedback(msg,color){
+  const f=document.getElementById('feedback');f.textContent=msg;f.style.color=color;
+  f.style.animation='none';void f.offsetWidth;f.style.animation='popIn .35s';
+}
+
+/* ============================================================
+   ⭐ จบด่าน — ดาว 1-5 + บันทึกทุกอย่าง
+============================================================ */
+function starsFor(acc){ // 100%=5, ≥80%=4, ≥60%=3, ≥40%=2, ≥20%=1
+  if(acc>=100)return 5;if(acc>=80)return 4;if(acc>=60)return 3;if(acc>=40)return 2;if(acc>=20)return 1;return 0;
+}
+function endGame(){
+  clearInterval(G.timerId);
+  const timeSec=Math.round((Date.now()-G.start)/1000);
+  const answered=Math.min(G.q,TOTAL_Q)||TOTAL_Q;
+  const acc=Math.round(G.correct/answered*100);
+  const stars=starsFor(acc);
+  // 💾 บันทึก
+  store.points=store.points+G.points;
+  const h=store.history;h.unshift({date:todayKey(),grade:G.grade,correct:G.correct,total:answered,timeSec});
+  store.history=h.slice(0,50);
+  markToday();updateDaily(G);
+  // ⭐ แสดงดาว
+  const row=document.getElementById('starsRow');row.innerHTML='';
+  for(let i=0;i<5;i++){
+    const s=document.createElement('span');s.className='star'+(i<stars?' lit':'');
+    s.textContent=i<stars?'⭐':'☆';s.style.animationDelay=(.3+i*.25)+'s';
+    row.appendChild(s);
+  }
+  document.getElementById('resultTitle').textContent=G.hp<=0?'💔 HP หมด!':stars>=5?'🏆 สมบูรณ์แบบ!':stars>=3?'🎉 ยอดเยี่ยม!':stars>=1?'💪 พยายามอีกนิด!':'🌱 ลองใหม่อีกครั้ง!';
+  document.getElementById('rCorrect').textContent=G.correct;
+  document.getElementById('rTime').textContent=timeSec;
+  document.getElementById('rPoints').textContent='+'+G.points;
+  document.getElementById('rTotal').textContent=store.points;
+  go('scr-result');
+  if(stars>=3){sfx.fanfare();confetti(70);setTimeout(()=>confetti(40),900);}
+  else sfx.coin();
+}
+
+/* ============================================================
+   🗓️ ระบบผจญภัยรายวัน + ปฏิทินสตรีค
+============================================================ */
+function freshDaily(){return{date:todayKey(),played:0,correct:0,bestStreak:0,rewardClaimed:false};}
+function ensureDaily(){let d=store.getDaily();if(!d||d.date!==todayKey())d=freshDaily();store.setDaily(d);return d;}
+function updateDaily(G){
+  const d=ensureDaily();
+  d.played++;d.correct+=G.correct;d.bestStreak=Math.max(d.bestStreak,G.bestStreak);
+  store.setDaily(d);
+}
+function markToday(){
+  const days=store.days;
+  if(!days.includes(todayKey())){days.push(todayKey());store.days=days.sort();}
+}
+function dayStreakCount(){
+  let n=0,d=new Date();
+  if(!store.days.includes(d.toISOString().slice(0,10)))d.setDate(d.getDate()-1); // วันนี้ยังไม่เล่นนับจากเมื่อวาน
+  while(store.days.includes(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+const MISSIONS=[
+  {icon:'🎮',desc:'เล่นครบ 1 รอบ',target:1,get:d=>d.played},
+  {icon:'🎯',desc:'ตอบถูกรวม 5 ข้อ',target:5,get:d=>d.correct},
+  {icon:'🔥',desc:'ทำสตรีคสูงสุด 3',target:3,get:d=>d.bestStreak}
+];
+function renderDaily(){
+  ensureDaily();
+  const d=store.getDaily();
+  document.getElementById('dayStreak').textContent=dayStreakCount();
+  const list=document.getElementById('missionList');list.innerHTML='';
+  let allDone=true;
+  MISSIONS.forEach(m=>{
+    const v=Math.min(m.get(d),m.target),done=v>=m.target;
+    if(!done)allDone=false;
+    list.innerHTML+=`<div class="mission pop">
+      <span class="icon">${m.icon}</span>
+      <div class="bar"><b>${m.desc}</b><br><small>${v}/${m.target} ${done?'✅':''}</small>
+      <div class="progress-outer" style="height:8px;margin-top:3px;"><div class="progress-inner" style="width:${v/m.target*100}%"></div></div></div>
+    </div>`;
+  });
+  const box=document.getElementById('rewardBox');
+  if(d.rewardClaimed){box.textContent='✅';box.style.animation='none';}
+  else if(allDone){box.textContent='🎁';box.style.animation='wiggle 1s infinite';}
+  else{box.textContent='🔒';box.style.animation='none';}
+  // ปฏิทิน 14 วันย้อนหลัง
+  const cal=document.getElementById('calGrid');cal.innerHTML='';
+  for(let i=13;i>=0;i--){
+    const k=todayKey(-i),cell=document.createElement('div');
+    cell.className='cal-cell'+(store.days.includes(k)?' done':'')+(i===0?' today':'');
+    cell.textContent=store.days.includes(k)?'⭐':+k.slice(8,10);
+    cal.appendChild(cell);
+  }
+}
+function claimReward(){
+  const d=ensureDaily();const allDone=MISSIONS.every(m=>m.get(d)>=m.target);
+  if(d.rewardClaimed||!allDone){sfx.wrong();return;}
+  d.rewardClaimed=true;store.setDaily(d);
+  const prize=50+rand(0,10)*10;
+  store.points=store.points+prize;sfx.coin();setTimeout(sfx.fanfare,250);
+  const box=document.getElementById('rewardBox');
+  burst(box,['🎁','✨','⭐','💰','🎉'],30);
+  box.textContent='🎊';
+  setTimeout(()=>{alert(`🎉 รางวัลจากกล่องสุ่ม: +${prize} แต้ม! (รวม ${store.points} แต้ม)`);renderDaily();},400);
+}
+
+/* ============================================================
+   🏆 แลกส่วนลด
+============================================================ */
+const TIERS=[[500,2],[1000,5],[2000,8],[3000,10]];
+function renderRedeem(){
+  const pts=store.points;
+  document.getElementById('redeemPoints').textContent=pts;
+  const next=TIERS.find(t=>t[0]>pts);
+  const prev=next?TIERS[TIERS.indexOf(next)-1]:TIERS[TIERS.length-1];
+  const base=prev?prev[0]:0,target=next?next[0]:prev[0];
+  document.getElementById('redeemProgress').style.width=(next?Math.min(100,(pts-base)/(target-base)*100):100)+'%';
+  document.getElementById('nextTierText').textContent=next?`อีก ${next[0]-pts} แต้ม ถึงส่วนลด ${next[1]}%`:'ถึงขั้นสูงสุดแล้ว! 🎉';
+  const redeemed=store.getRedeemed();
+  const tbl=document.getElementById('tierTable');
+  tbl.innerHTML='<tr><th>แต้ม</th><th>ส่วนลด</th><th></th></tr>';
+  TIERS.forEach(([need,disc])=>{
+    const used=redeemed.some(r=>r.need===need);
+    const can=pts>=need&&!used;
+    tbl.innerHTML+=`<tr class="tier-row ${pts>=need?'reached':''}">
+      <td>${need.toLocaleString()}</td><td><b>${disc}%</b></td>
+      <td>${used?'<span class="badge">แล้ว ✓</span>':`<button class="btn ${can?'green':''}" style="width:auto;padding:6px 14px;font-size:.9rem;" ${can?'':'disabled'} onclick="doRedeem(${need},${disc})">แลก</button>`}</td></tr>`;
+  });
+  const ca=document.getElementById('codeArea');
+  if(redeemed.length){
+    ca.innerHTML='<div class="card"><b>🎟️ โค้ดส่วนลดของคุณ</b>'+
+      redeemed.map(r=>`<div class="code-box" style="margin-top:8px;">${r.code} <span class="badge">ลด ${r.disc}%</span></div>`).join('')+'</div>';
+  }else ca.innerHTML='';
+}
+function doRedeem(need,disc){
+  if(store.points<need)return;
+  store.points=store.points-need;
+  const code='NAY-'+Math.random().toString(36).slice(2,8).toUpperCase();
+  const r=store.getRedeemed();r.push({need,disc,code,date:todayKey()});store.setRedeemed(r);
+  sfx.coin();setTimeout(sfx.fanfare,300);confetti(50);
+  renderRedeem();
+}
+
+/* ============================================================
+   📊 ประวัติการเล่น
+============================================================ */
+function renderHistory(){
+  const h=store.history,body=document.getElementById('historyBody');
+  document.getElementById('historyEmpty').style.display=h.length?'none':'block';
+  body.innerHTML=h.map(x=>`<tr class="history-item"><td>${fmtDate(x.date)}</td><td>ป.${x.grade}</td><td>${x.correct}/${x.total}</td><td>${x.timeSec}</td></tr>`).join('');
+}
+
+/* ============================================================
+   🏠 INIT
+============================================================ */
+function refreshHome(){
+  document.getElementById('homePoints').textContent=store.points;
+}
+buildGradeGrid();setScene(0);refreshHome();
+// ปุ่มทุกปุ่มมีเสียงคลิก
+document.querySelectorAll('.btn').forEach(b=>b.addEventListener('click',()=>sfx.click()));
+// hook หน้าที่ต้อง render ทุกครั้งที่เปิด
+const origGo=go;
+go=function(id){origGo(id);
+  if(id==='scr-daily')renderDaily();
+  if(id==='scr-redeem')renderRedeem();
+  if(id==='scr-history')renderHistory();
+  if(id==='scr-home')refreshHome();
+};
+</script>
+</body>
+</html>
